@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Estadísticas - PsychCalendar{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estadisticas.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link" id="calendar-tab-btn">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link" id="patients-tab-btn">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link active">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Estadísticas</h1>
+        </div>
+
+        <!-- Contenido de Estadísticas -->
+        <div class="stats-container">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Estadísticas del Sistema</h1>
+                <div class="stats-actions">
+                    <button class="btn btn-primary btn-export">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                    <button class="btn btn-outline btn-refresh">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="periodo-selector">
+                <button class="active" data-periodo="semana">Esta semana</button>
+                <button data-periodo="mes">Este mes</button>
+                <button data-periodo="trimestre">Último trimestre</button>
+                <button data-periodo="año">Este año</button>
+                <button data-periodo="todo">Todo</button>
+            </div>
+
+            <div class="card-container">
+                <div class="stat-card card-primary">
+                    <div class="stat-title">Pacientes totales</div>
+                    <div class="stat-value" id="total-pacientes">0</div>
+                    <div>Pacientes registrados</div>
+                </div>
+
+                <div class="stat-card card-success">
+                    <div class="stat-title">Citas completadas</div>
+                    <div class="stat-value" id="citas-completadas">0</div>
+                    <div>Sesiones realizadas</div>
+                </div>
+
+                <div class="stat-card card-warning">
+                    <div class="stat-title">Citas pendientes</div>
+                    <div class="stat-value" id="citas-pendientes">0</div>
+                    <div>Sesiones programadas</div>
+                </div>
+
+                <div class="stat-card card-info">
+                    <div class="stat-title">Tasa de asistencia</div>
+                    <div class="stat-value" id="tasa-asistencia">0%</div>
+                    <div>Porcentaje de asistencia</div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-container">
+                    <h2><i class="fas fa-chart-pie"></i> Citas por status</h2>
+                    <div class="pie-chart">
+                        <div class="donut-chart"></div>
+                    </div>
+                    <div class="donut-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #36b9cc;"></div>
+                            <span>Programadas</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #1cc88a;"></div>
+                            <span>Completadas</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f6c23e;"></div>
+                            <span>Reprogramadas</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #e74a3b;"></div>
+                            <span>Canceladas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reemplaza el div con clase "chart-container" que contiene el gráfico de citas por mes con esto: -->
+                <div class="chart-container">
+                    <h2><i class="fas fa-chart-bar"></i> Citas por Mes</h2>
+                    <div class="chart-navigation">
+                        <button class="chart-nav-btn" id="prev-month-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="bar-chart-wrapper">
+                            <div class="bar-chart" id="citas-por-mes"></div>
+                        </div>
+                        <button class="chart-nav-btn" id="next-month-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-container">
+                    <h2><i class="fas fa-users"></i> Pacientes por Género</h2>
+                    <div class="pie-chart">
+                        <!-- Se genererara dinámicamente -->
+                    </div>
+                    <div class="donut-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #4e73df;"></div>
+                            <span>Masculino</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #e74a3b;"></div>
+                            <span>Femenino</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #1cc88a;"></div>
+                            <span>Otro</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2><i class="fas fa-birthday-cake"></i> Pacientes por Edad</h2>
+                    <div class="bar-chart" id="pacientes-por-edad"></div>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h2><i class="fas fa-calendar-alt"></i> Últimas Citas</h2>
+                <div class="table-responsive">
+                    <table class="data-table" id="tabla-citas">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Paciente</th>
+                                <th>Tipo</th>
+                                <th>Status</th>
+                                <th>Notas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Filas se generarán con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add this modal HTML to your estadisticas.html if it's not already there -->
+<div id="appointment-details-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeAppointmentModal()">&times;</span>
+        <h2>Detalles de la Cita</h2>
+        <div id="appointment-details-content">
+            <!-- Los detalles se cargarán dinámicamente -->
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeAppointmentModal()">Cerrar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/estadisticas.js') }}"></script>
+{% endblock %}

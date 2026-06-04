@@ -1,0 +1,501 @@
+{% extends 'base.html' %}
+
+{% block title %}Notificaciones{% endblock %}
+
+{% block styles %}
+<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-..." crossorigin="anonymous">
+<style>
+    .notifications-container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 0 15px;
+    }
+
+    .card {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e3e6f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #5a5c69;
+    }
+
+    .card-body {
+        padding: 0;
+    }
+
+    .notification-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .notification-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e3e6f0;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+
+    .notification-item:hover {
+        background-color: #f8f9fc;
+    }
+
+    .notification-item.unread {
+        background-color: #eef5ff;
+    }
+
+    .notification-icon {
+        flex: 0 0 40px;
+        font-size: 20px;
+        color: #4e73df;
+        margin-right: 15px;
+        margin-top: 3px;
+    }
+
+    .notification-content {
+        flex-grow: 1;
+    }
+
+    .notification-title {
+        margin: 0 0 5px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #5a5c69;
+    }
+
+    .notification-message {
+        margin: 0;
+        font-size: 14px;
+        color: #858796;
+    }
+
+    .notification-time {
+        font-size: 12px;
+        color: #b7b9cc;
+        margin-top: 8px;
+    }
+
+    .notification-actions {
+        margin-left: 15px;
+    }
+
+    .btn-action {
+        background: none;
+        border: none;
+        color: #4e73df;
+        cursor: pointer;
+        padding: 5px;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+
+    .btn-action:hover {
+        color: #2e59d9;
+    }
+
+    .notification-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .badge-verification {
+        background-color: #1cc88a;
+        color: white;
+    }
+
+    .badge-warning {
+        background-color: #f6c23e;
+        color: white;
+    }
+
+    .badge-info {
+        background-color: #36b9cc;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #e74a3b;
+        color: white;
+    }
+
+    .no-notifications {
+        padding: 30px;
+        text-align: center;
+        color: #858796;
+    }
+
+    .notification-tabs {
+        display: flex;
+        border-bottom: 1px solid #e3e6f0;
+        background-color: #f8f9fa;
+    }
+
+    .notification-tab {
+        padding: 15px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #858796;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .notification-tab.active {
+        color: #4e73df;
+        border-bottom-color: #4e73df;
+    }
+
+    .notification-tab-content {
+        display: none;
+    }
+
+    .notification-tab-content.active {
+        display: block;
+    }
+
+    .notification-actions-bar {
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #e3e6f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 14px;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+            border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .btn-primary {
+        color: #fff;
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+
+    .btn-primary:hover {
+        color: #fff;
+        background-color: #2e59d9;
+        border-color: #2653d4;
+    }
+
+    .btn-outline-secondary {
+        color: #858796;
+        background-color: transparent;
+        border-color: #d1d3e2;
+    }
+
+    .btn-outline-secondary:hover {
+        color: #fff;
+        background-color: #858796;
+        border-color: #858796;
+    }
+
+    .unread-indicator {
+        width: 10px;
+        height: 10px;
+        background-color: #4e73df;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-bell"></i> Notificaciones</h2>
+            <button id="btn-mark-all-read" class="btn btn-outline-secondary btn-sm">
+                Marcar todas como leídas
+            </button>
+        </div>
+
+        <div class="notification-tabs">
+            <div class="notification-tab active" data-tab="all">Todas</div>
+            {% if notificaciones_agrupadas.verificacion %}
+            <div class="notification-tab" data-tab="verification">Verificación</div>
+            {% endif %}
+            {% if notificaciones_agrupadas.sistema %}
+            <div class="notification-tab" data-tab="system">Sistema</div>
+            {% endif %}
+            {% if notificaciones_agrupadas.otras %}
+            <div class="notification-tab" data-tab="other">Otras</div>
+            {% endif %}
+        </div>
+
+        <div class="card-body">
+            <!-- Pestaña "Todas" -->
+            <div class="notification-tab-content active" id="tab-all">
+                {% if notificaciones %}
+                <ul class="notification-list">
+                    {% for notif in notificaciones %}
+                    <li class="notification-item {% if not notif.leida %}unread{% endif %}" id="notif-{{ notif.id }}">
+                        <div class="notification-icon">
+                            {% if 'verificacion_aprobada' in notif.tipo %}
+                            <i class="fas fa-check-circle text-success"></i>
+                            {% elif 'verificacion_rechazada' in notif.tipo %}
+                            <i class="fas fa-times-circle text-danger"></i>
+                            {% elif 'verificacion_info_adicional' in notif.tipo %}
+                            <i class="fas fa-info-circle text-warning"></i>
+                            {% elif 'verificacion_psicologo' in notif.tipo %}
+                            <i class="fas fa-user-md text-primary"></i>
+                            {% else %}
+                            <i class="fas fa-bell"></i>
+                            {% endif %}
+                        </div>
+                        <div class="notification-content">
+                            <h4 class="notification-title">
+                                {{ notif.titulo }}
+                                {% if not notif.leida %}
+                                <span class="unread-indicator"></span>
+                                {% endif %}
+                            </h4>
+                            <p class="notification-message">{{ notif.mensaje }}</p>
+                            <div class="notification-time">{{ notif.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
+                        </div>
+                        <div class="notification-actions">
+                            {% if not notif.leida %}
+                            <button class="btn-action mark-read" data-id="{{ notif.id }}">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="no-notifications">
+                    <i class="fas fa-bell-slash fa-3x mb-3"></i>
+                    <h3>No tienes notificaciones</h3>
+                    <p>Cuando recibas notificaciones, aparecerán aquí.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Pestaña "Verificación" -->
+            <div class="notification-tab-content" id="tab-verification">
+                {% if notificaciones_agrupadas.verificacion %}
+                <ul class="notification-list">
+                    {% for notif in notificaciones_agrupadas.verificacion %}
+                    <li class="notification-item {% if not notif.leida %}unread{% endif %}" id="notif-v-{{ notif.id }}">
+                        <div class="notification-icon">
+                            {% if 'verificacion_aprobada' in notif.tipo %}
+                            <i class="fas fa-check-circle text-success"></i>
+                            {% elif 'verificacion_rechazada' in notif.tipo %}
+                            <i class="fas fa-times-circle text-danger"></i>
+                            {% elif 'verificacion_info_adicional' in notif.tipo %}
+                            <i class="fas fa-info-circle text-warning"></i>
+                            {% elif 'verificacion_psicologo' in notif.tipo %}
+                            <i class="fas fa-user-md text-primary"></i>
+                            {% endif %}
+                        </div>
+                        <div class="notification-content">
+                            <h4 class="notification-title">
+                                {{ notif.titulo }}
+                                {% if not notif.leida %}
+                                <span class="unread-indicator"></span>
+                                {% endif %}
+                            </h4>
+                            <p class="notification-message">{{ notif.mensaje }}</p>
+                            <div class="notification-time">{{ notif.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
+                        </div>
+                        <div class="notification-actions">
+                            {% if not notif.leida %}
+                            <button class="btn-action mark-read" data-id="{{ notif.id }}">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="no-notifications">
+                    <i class="fas fa-user-check fa-3x mb-3"></i>
+                    <h3>No hay notificaciones de verificación</h3>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Pestaña "Sistema" -->
+            <div class="notification-tab-content" id="tab-system">
+                {% if notificaciones_agrupadas.sistema %}
+                <ul class="notification-list">
+                    {% for notif in notificaciones_agrupadas.sistema %}
+                    <li class="notification-item {% if not notif.leida %}unread{% endif %}" id="notif-s-{{ notif.id }}">
+                        <!-- Contenido similar -->
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="no-notifications">
+                    <i class="fas fa-cogs fa-3x mb-3"></i>
+                    <h3>No hay notificaciones del sistema</h3>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Pestaña "Otras" -->
+            <div class="notification-tab-content" id="tab-other">
+                {% if notificaciones_agrupadas.otras %}
+                <ul class="notification-list">
+                    {% for notif in notificaciones_agrupadas.otras %}
+                    <li class="notification-item {% if not notif.leida %}unread{% endif %}" id="notif-o-{{ notif.id }}">
+                        <!-- Contenido similar -->
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="no-notifications">
+                    <i class="fas fa-envelope-open fa-3x mb-3"></i>
+                    <h3>No hay otras notificaciones</h3>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Cambio de pestañas
+        const tabs = document.querySelectorAll('.notification-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                // Desactivar todas las pestañas
+                tabs.forEach(t => t.classList.remove('active'));
+
+                // Desactivar todos los contenidos
+                document.querySelectorAll('.notification-tab-content').forEach(c => {
+                    c.classList.remove('active');
+                });
+
+                // Activar la pestaña actual
+                this.classList.add('active');
+
+                // Activar el contenido correspondiente
+                const tabId = `tab-${this.dataset.tab}`;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Marcar notificación como leída
+        document.querySelectorAll('.mark-read').forEach(button => {
+            button.addEventListener('click', function () {
+                const notificationId = this.dataset.id;
+                markAsRead(notificationId);
+            });
+        });
+
+        // Marcar todas como leídas
+        document.getElementById('btn-mark-all-read').addEventListener('click', function () {
+            markAllAsRead();
+        });
+
+        // Función para marcar una notificación como leída
+        function markAsRead(notificationId) {
+            fetch(`/notificacion/${notificationId}/leer`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar UI para marcar como leída
+                        const items = document.querySelectorAll(`[id^="notif-"][id$="-${notificationId}"], #notif-${notificationId}`);
+                        items.forEach(item => {
+                            item.classList.remove('unread');
+                            const indicator = item.querySelector('.unread-indicator');
+                            if (indicator) {
+                                indicator.remove();
+                            }
+                            const markReadBtn = item.querySelector('.mark-read');
+                            if (markReadBtn) {
+                                markReadBtn.remove();
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al marcar notificación como leída:', error);
+                });
+        }
+
+        // Función para marcar todas las notificaciones como leídas
+        function markAllAsRead() {
+            fetch('/notificaciones/leer-todas', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar UI para marcar todas como leídas
+                        document.querySelectorAll('.notification-item.unread').forEach(item => {
+                            item.classList.remove('unread');
+                        });
+                        document.querySelectorAll('.unread-indicator').forEach(indicator => {
+                            indicator.remove();
+                        });
+                        document.querySelectorAll('.mark-read').forEach(button => {
+                            button.remove();
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al marcar todas las notificaciones como leídas:', error);
+                });
+        }
+    });
+</script>
+{% endblock %}

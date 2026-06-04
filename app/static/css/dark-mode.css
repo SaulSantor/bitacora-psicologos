@@ -1,0 +1,102 @@
+/* dark-mode.css - Estilos para el modo oscuro */
+
+body.dark-mode {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+}
+
+/* Estilos para elementos comunes */
+body.dark-mode .main-header,
+body.dark-mode .content-wrapper,
+body.dark-mode .main-footer {
+    background-color: var(--dark-bg-color);
+    color: var(--dark-text-color);
+}
+
+/* Cards y contenedores */
+body.dark-mode .card,
+body.dark-mode .auth-card,
+body.dark-mode .config-container,
+body.dark-mode .patients-container,
+body.dark-mode .history-container,
+body.dark-mode .appointment-container,
+body.dark-mode .helper-card,
+body.dark-mode .login-container,
+body.dark-mode .register-container {
+    background-color: var(--dark-card-bg);
+    color: var(--dark-text-color);
+    border-color: var(--dark-border-color);
+}
+
+/* Encabezados de cards */
+body.dark-mode .card-header,
+body.dark-mode .patients-header,
+body.dark-mode .history-header,
+body.dark-mode .appointment-header {
+    background-color: var(--dark-card-header);
+    border-color: var(--dark-border-color);
+}
+
+/* Entradas de formulario */
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .search-bar,
+body.dark-mode .input-group-text {
+    background-color: var(--dark-input-bg);
+    border-color: var(--dark-border-color);
+    color: var(--dark-text-color);
+}
+
+/* Tablas */
+body.dark-mode table th,
+body.dark-mode .patients-table th,
+body.dark-mode .appointments-table th {
+    background-color: var(--dark-card-header);
+    color: var(--primary-color);
+}
+
+body.dark-mode table td,
+body.dark-mode .patients-table td,
+body.dark-mode .appointments-table td {
+    border-color: var(--dark-border-color);
+}
+
+body.dark-mode table tr:hover,
+body.dark-mode .patients-table tr:hover,
+body.dark-mode .appointments-table tr:hover {
+    background-color: var(--dark-hover-color);
+}
+
+/* Modales */
+body.dark-mode .modal-content {
+    background-color: var(--dark-card-bg);
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: var(--dark-border-color);
+}
+
+/* Otros elementos específicos */
+body.dark-mode .login-footer,
+body.dark-mode .register-footer {
+    background-color: var(--dark-card-header);
+    border-color: var(--dark-border-color);
+}
+
+body.dark-mode .nav-link:hover,
+body.dark-mode .btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Estilos para los toast */
+body.dark-mode .toast-alert {
+    background-color: var(--dark-card-bg);
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .toast-header {
+    background-color: var(--dark-card-header);
+    border-color: var(--dark-border-color);
+}

@@ -1,0 +1,529 @@
+{% extends 'base.html' %}
+<!---->
+{% block title %}Pacientes - PsychCalendar{% endblock %}
+<!---->
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pacientes.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…." crossorigin="anonymous">
+{% endblock %}
+<!---->
+{% block content %}
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link active" id="prueba-1">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Gestión de Pacientes</h1>
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar paciente..." id="searchPatient" />
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab" id="calendar-tab">Calendario</div>
+            <div class="tab active" id="patients-tab">Pacientes</div>
+        </div>
+
+        <!-- Patient Stats -->
+        <div class="stats-cards fade-in">
+            <div class="stat-card stat-card-primary">
+                <h3>Total Pacientes</h3>
+                <p>{{ pacientes|length }}</p>
+                <i class="fas fa-users stat-card-icon"></i>
+            </div>
+            <!-- Pacientes Activos -->
+            <div class="stat-card stat-card-success">
+                <h3>Pacientes Activos</h3>
+                <p>{{ pacientes_activos }}</p>
+                <i class="fas fa-user-check stat-card-icon"></i>
+            </div>
+            <!-- Nuevos (Mes) -->
+            <div class="stat-card stat-card-info">
+                <h3>Nuevos (Mes)</h3>
+                <p>{{ pacientes_nuevos_mes }}</p>
+                <i class="fas fa-user-plus stat-card-icon"></i>
+            </div>
+            <div class="stat-card stat-card-danger">
+                <h3>Atención Urgente</h3>
+                <p>{{ pacientes_urgentes|default(0) }}</p>
+                <i class="fas fa-exclamation-circle stat-card-icon"></i>
+            </div>
+        </div>
+
+        <!-- Patients Content -->
+        <div class="fade-in">
+            <div class="patients-container">
+                <div class="patients-header">
+                    <h2>Lista de Pacientes</h2>
+                    <div>
+                        <a href="{{ url_for('main.nuevo_paciente') }}" class="btn btn-primary" id="new-patient-btn">
+                            <i class="fas fa-user-plus"></i> Nuevo Paciente
+                        </a>
+                        <button class="btn btn-info" style="margin-left: 0.5rem">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <div class="filter-row">
+                        <div class="form-group">
+                            <label for="filter-status">Status</label>
+                            <select id="filter-status" class="form-control">
+                                <option value="">Todos</option>
+                                <option value="vigente">Vigente</option>
+                                <option value="orientacion">Orientacion</option>
+                                <option value="urgencia">Urgencia</option>
+                                <option value="waiting">En Espera</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-diagnosis">Diagnóstico</label>
+                            <select id="filter-diagnosis" class="form-control">
+                                <option value="">Todos</option>
+                                <option value="Duelo">Duelo</option>
+                                <option value="Trastorno de Ansiedad Generalizada">Trastorno de Ansiedad
+                                    Generalizada</option>
+                                <option value="Trastorno de Pánico">Trastorno de Pánico</option>
+                                <option value="Trastorno Depresivo Mayor">Trastorno Depresivo Mayor</option>
+                                <option value="Trastorno Bipolar">Trastorno Bipolar</option>
+                                <option value="Trastorno Obsesivo-Compulsivo (TOC)">Trastorno
+                                    Obsesivo-Compulsivo (TOC)</option>
+                                <option value="Trastorno de Estrés Postraumático (TEPT)">Trastorno de Estrés
+                                    Postraumático (TEPT)</option>
+                                <option value="Esquizofrenia">Esquizofrenia</option>
+                                <option value="Trastorno del Espectro Autista (TEA)">Trastorno del Espectro
+                                    Autista (TEA)</option>
+                                <option value="TDAH (Trastorno por Déficit de Atención e Hiperactividad)">TDAH
+                                    (Trastorno por Déficit de Atención e Hiperactividad)</option>
+                                <option value="Trastorno Límite de la Personalidad (TLP)">Trastorno Límite de la
+                                    Personalidad (TLP)</option>
+                                <option value="Trastorno Alimentario (Anorexia/Bulimia)">Trastorno Alimentario
+                                    (Anorexia/Bulimia)</option>
+                                <option value="Otro">Otro (Especificar en notas)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-last-visit">Última Visita</label>
+                            <select id="filter-last-visit" class="form-control">
+                                <option value="">Cualquier fecha</option>
+                                <option value="week">Última semana</option>
+                                <option value="month">Último mes</option>
+                                <option value="quarter">
+                                    Último trimestre
+                                </option>
+                                <option value="year">Último año</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end">
+                            <button class="btn btn-primary" style="width: 100%" id="apply-filters">
+                                <i class="fas fa-filter"></i> Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patients Table -->
+                <div class="patients-table-container">
+                    <table class="patients-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Status</th>
+                                <th>Diagnóstico</th>
+                                <th>Última Cita</th>
+                                <th>Próxima Cita</th>
+                                <th>Teléfono</th>
+                                <th>Email</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patients-list">
+                            {% for paciente in pacientes %}
+                            <tr>
+                                <td>
+                                    <strong>{{ paciente.nombre }} {{
+                                        paciente.apellido }}</strong>
+                                </td>
+                                <td>
+                                    {% if paciente.status|default('vigente') ==
+                                    'vigente' %}
+                                    <span class="status-badge status-vigente">Vigente</span>
+                                    {% elif paciente.status|default('vigente') ==
+                                    'orientacion' %}
+                                    <span class="status-badge status-orientacion">Orientacion</span>
+                                    {% elif paciente.status|default('vigente') ==
+                                    'urgencia' %}
+                                    <span class="status-badge status-urgencia">Urgencia</span>
+                                    {% elif paciente.status|default('vigente') ==
+                                    'waiting' %}
+                                    <span class="status-badge status-waiting">En Espera</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ paciente.diagnostico|default('No
+                                    especificado') }}
+                                </td>
+                                <td>
+                                    {% if paciente.ultima_cita %}
+                                    {{ paciente.ultima_cita.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                    <span>no ha tenido citas</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if paciente.proxima_cita %}
+                                    {{ paciente.proxima_cita.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                    <span>no hay citas programadas</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ paciente.telefono }}</td>
+                                <td>{{ paciente.usuario.email if paciente.usuario else "" }}</td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="action-btn view-btn" title="Ver detalles"
+                                            onclick="viewPatientDetails('{{ paciente.id }}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="action-btn edit-btn"
+                                            onclick="openEditModal('{{ paciente.id }}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+
+                                        <button class="action-btn notes-btn" title="Notas"
+                                            onclick="showPatientNotes('{{ paciente.id }}')">
+                                            <i class="fas fa-clipboard"></i>
+                                        </button>
+
+                                        <button class="action-btn delete-btn" title="Eliminar"
+                                            onclick="confirmDeletePatient('{{ paciente.id }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    No hay pacientes registrados
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <div>
+                        <select class="form-control" style="width: auto; display: inline-block" id="page-size">
+                            <option value="10">10 por página</option>
+                            <option value="25">25 por página</option>
+                            <option value="50">50 por página</option>
+                            <option value="100">100 por página</option>
+                        </select>
+                    </div>
+                    <div class="pagination">
+                        <button class="pagination-btn" title="Página anterior" id="prev-page">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="pagination-info">Página <span id="current-page">1</span> de
+                            <span id="total-pages">{{ (pacientes|length / 10)|round(0, 'ceil')|int
+                                }}</span></span>
+                        <button class="pagination-btn" title="Página siguiente" id="next-page">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Details Modal -->
+<div id="patient-details-modal" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    ">
+    <div style="
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 600px;
+            animation: fadeIn 0.3s;
+        ">
+        <div style="
+                padding: 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid var(--border-color);
+            ">
+            <h3 style="font-size: 1.25rem; font-weight: 500; margin: 0">
+                Detalles del Paciente
+            </h3>
+            <button style="
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: var(--dark-color);
+                " onclick="closePatientModal()">
+                &times;
+            </button>
+        </div>
+        <div style="padding: 1rem">
+            <div id="patient-details-content">
+                <!-- Detalles del paciente (cargados con JavaScript) -->
+            </div>
+        </div>
+        <div style="
+                padding: 1rem;
+                display: flex;
+                justify-content: flex-end;
+                gap: 0.5rem;
+                border-top: 1px solid var(--border-color);
+            ">
+            <button class="btn btn-secondary" onclick="closePatientModal()">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Patient Modal -->
+<div id="editPacienteModal" class="modal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center; overflow: auto;">
+    <div class="modal-content"
+        style="background-color: white; border-radius: 0.5rem; width: 90%; max-width: 600px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 1rem; position: relative;">
+        <span class="close" onclick="closeEditModal()"
+            style="position: absolute; top: 0.5rem; right: 0.5rem; font-size: 1.5rem; cursor: pointer; color: #333;">×</span>
+        <h4 style="margin-top: 0; font-size: 1.25rem; font-weight: 500;">Editar Paciente</h4>
+        <form id="editPacienteForm">
+            <input type="hidden" id="paciente_id">
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="apellido">Apellido</label>
+                <input type="text" id="apellido" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="text" id="telefono" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" class="form-control">
+                    <option value="vigente">Vigente</option>
+                    <option value="urgencia">Urgencia</option>
+                    <option value="orientacion">Orientación</option>
+                    <option value="waiting">En Espera</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="diagnostico">Diagnóstico</label>
+                <input type="text" id="diagnostico" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="new-note">Añadir Nota</label>
+                <textarea id="new-note" class="form-control" rows="4" placeholder="Añadir nueva nota"></textarea>
+                <button type="button" class="btn btn-primary" style="margin-top: 0.5rem"
+                    onclick="addPatientNoteFromEdit(document.getElementById('paciente_id').value)">Agregar Nota</button>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <button type="button" class="btn btn-primary" onclick="updatePaciente()">Guardar cambios</button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    ">
+    <div style="
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 400px;
+            animation: fadeIn 0.3s;
+        ">
+        <div style="padding: 1rem; border-bottom: 1px solid var(--border-color)">
+            <h3 style="font-size: 1.25rem; font-weight: 500; margin: 0">
+                Confirmar eliminación
+            </h3>
+        </div>
+        <div style="padding: 1rem">
+            <p>
+                ¿Está seguro de que desea eliminar este paciente? Esta acción no
+                se puede deshacer.
+            </p>
+            <div style="
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 1rem;
+                    margin-top: 1rem;
+                ">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirm-delete">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notes Modal -->
+<div id="notes-modal" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    ">
+    <div style="
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 600px;
+            animation: fadeIn 0.3s;
+            max-height: 80vh;
+            overflow-y: auto;
+        ">
+        <div style="
+                padding: 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid var(--border-color);
+            ">
+            <h3 style="font-size: 1.25rem; font-weight: 500; margin: 0">
+                Notas del Paciente
+            </h3>
+            <button style="
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: var(--dark-color);
+                " onclick="closeNotesModal()">
+                ×
+            </button>
+        </div>
+        <div style="padding: 1rem" id="notes-content">
+            <!-- Contenido de las notas se cargará dinámicamente -->
+        </div>
+        <div style="
+                padding: 1rem;
+                border-top: 1px solid var(--border-color);
+                display: flex;
+                justify-content: flex-end;
+            ">
+            <button type="button" class="btn btn-primary" onclick="closeNotesModal()">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!---->
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pacientes.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+<!---->
+{% block title %}Registro de Nuevo Paciente - PsychCalendar{% endblock %}
+<!---->
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nuevo_paciente.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…." crossorigin="anonymous">
+{% endblock %}
+<!---->
+{% block content %}
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link active">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Registro de Nuevo Paciente</h1>
+        </div>
+
+        <!-- Patient Form -->
+        <div class="patient-form-container">
+            <div class="patient-form-header">
+                <h2><i class="fas fa-user-plus"></i> Datos del Paciente</h2>
+            </div>
+            <div class="patient-form-body">
+                <form id="patient-form" class="needs-validation" method="POST"
+                    action="{{ url_for('main.nuevo_paciente') }}" novalidate>
+                    <input type="hidden" />
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" id="nombre" name="nombre" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="apellido" class="form-label">Apellido</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" id="apellido" name="apellido" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Nacimiento y Género -->
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento"
+                                        class="form-control" max="{% raw %}{{ today }}{% endraw %}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="genero" class="form-label">Género</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
+                                    <select id="genero" name="genero" class="form-select">
+                                        <option value="">Seleccionar</option>
+                                        <option value="Femenino">Femenino</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Otro">Otro</option>
+                                        <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teléfono y Email -->
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input type="tel" id="telefono" name="telefono" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" id="email" name="email" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="form-row">
+                        <div class="form-col-full">
+                            <div class="form-group">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-home"></i></span>
+                                    <input type="text" id="direccion" name="direccion" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ocupación y Estado Civil -->
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="ocupacion" class="form-label">Ocupación</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                    <input type="text" id="ocupacion" name="ocupacion" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="estado_civil" class="form-label">Estado Civil</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-heart"></i></span>
+                                    <select id="estado_civil" name="estado_civil" class="form-select">
+                                        <option value="">Seleccionar</option>
+                                        <option value="Soltero">Soltero</option>
+                                        <option value="Casado">Casado</option>
+                                        <option value="Divorciado">Divorciado</option>
+                                        <option value="Viudo">Viudo</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Referido por y status -->
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="status" class="form-label">Status</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-exclamation-circle"></i></span>
+                                    <select id="status" name="status" class="form-select">
+                                        <option value="">Seleccionar status</option>
+                                        <option value="vigente">Vigente</option>
+                                        <option value="orientacion">Orientacion</option>
+                                        <option value="urgencia">urgencia</option>
+                                        <option value="waiting">En Espera</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnóstico -->
+                    <div class="form-row">
+                        <div class="form-col-full">
+                            <div class="form-group">
+                                <label for="diagnostico" class="form-label">Diagnóstico</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-stethoscope"></i></span>
+                                    <select id="diagnostico" name="diagnostico" class="form-select" required>
+                                        <option value="">Seleccionar Diagnóstico</option>
+                                        <option value="Duelo">Duelo</option>
+                                        <option value="Trastorno de Ansiedad Generalizada">Trastorno de Ansiedad
+                                            Generalizada</option>
+                                        <option value="Trastorno de Pánico">Trastorno de Pánico</option>
+                                        <option value="Trastorno Depresivo Mayor">Trastorno Depresivo Mayor</option>
+                                        <option value="Trastorno Bipolar">Trastorno Bipolar</option>
+                                        <option value="Trastorno Obsesivo-Compulsivo (TOC)">Trastorno
+                                            Obsesivo-Compulsivo (TOC)</option>
+                                        <option value="Trastorno de Estrés Postraumático (TEPT)">Trastorno de Estrés
+                                            Postraumático (TEPT)</option>
+                                        <option value="Esquizofrenia">Esquizofrenia</option>
+                                        <option value="Trastorno del Espectro Autista (TEA)">Trastorno del Espectro
+                                            Autista (TEA)</option>
+                                        <option value="TDAH (Trastorno por Déficit de Atención e Hiperactividad)">TDAH
+                                            (Trastorno por Déficit de Atención e Hiperactividad)</option>
+                                        <option value="Trastorno Límite de la Personalidad (TLP)">Trastorno Límite de la
+                                            Personalidad (TLP)</option>
+                                        <option value="Trastorno Alimentario (Anorexia/Bulimia)">Trastorno Alimentario
+                                            (Anorexia/Bulimia)</option>
+                                        <option value="Otro">Otro (Especificar en notas)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notas y Observaciones -->
+                    <div class="form-row">
+                        <div class="form-col-full">
+                            <div class="form-group">
+                                <label for="notas" class="form-label">Notas y Observaciones</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-notes-medical"></i></span>
+                                    <textarea id="notas" name="notas" class="form-control" rows="3"
+                                        placeholder="Notas iniciales del paciente"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Consentimiento -->
+                    <div class="consent-card">
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="consentimiento" name="consentimiento"
+                                required />
+                            <label class="form-check-label" for="consentimiento">
+                                He obtenido el consentimiento informado del paciente
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="recordatorios" name="recordatorios"
+                                checked />
+                            <label class="form-check-label" for="recordatorios">
+                                Acepta recibir recordatorios de citas
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Acciones del Formulario -->
+                    <div class="form-actions">
+                        <a href="{{ url_for('main.pacientes') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="enviar-paciente-btn">
+                            <i class="fas fa-save"></i> Guardar Paciente
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!---->
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/nuevo_paciente.js') }}"></script>
+{% endblock %}

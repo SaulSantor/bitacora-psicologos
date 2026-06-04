@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalles del Paciente{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/psicologo.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…" crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="sidebar">
+        <!-- Igual que en editar_cita.html -->
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Detalles de {{ paciente.nombre }} {{ paciente.apellido }}</h1>
+        </div>
+
+        <div class="patient-details">
+            <h3>Información del Paciente</h3>
+            <p><strong>Nombre:</strong> {{ paciente.nombre }} {{ paciente.apellido }}</p>
+            <p><strong>Email:</strong> {{ paciente.email or 'No proporcionado' }}</p>
+            <p><strong>Teléfono:</strong> {{ paciente.telefono or 'No proporcionado' }}</p>
+        </div>
+
+        <div class="notes-history">
+            <h3>Historial de Notas</h3>
+            <div class="form-group">
+                <label for="newPatientNote">Añadir Nueva Nota</label>
+                <textarea id="newPatientNote" class="form-control" rows="4"
+                    placeholder="Escribe una nota general para el paciente"></textarea>
+                <div class="invalid-feedback" id="newPatientNote-error"></div>
+                <button id="savePatientNote" class="btn btn-primary mt-2">Guardar Nota</button>
+            </div>
+            <div id="notesContainer" class="mt-3"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const notesContainer = document.getElementById('notesContainer');
+        const newPatientNote = document.getElementById('newPatientNote');
+        const savePatientNoteBtn = document.getElementById('savePatientNote');
+        const errorDiv = document.getElementById('newPatientNote-error');
+
+        async function loadNotes() {
+            try {
+                const response = await fetch(`/api/paciente/{{ paciente.id }}/notas`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.notas.length === 0) {
+                        notesContainer.innerHTML = '<p>No hay notas disponibles.</p>';
+                    } else {
+                        const notesHTML = data.notas.map(nota => `
+                        <div class="note-item" style="padding: 10px; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 10px;">
+                            <p><strong>Fecha:</strong> ${nota.creado_en}</p>
+                            <p><strong>Cita:</strong> ${nota.cita_fecha}</p>
+                            <p>${nota.contenido}</p>
+                        </div>
+                    `).join('');
+                        notesContainer.innerHTML = notesHTML;
+                    }
+                } else {
+                    notesContainer.innerHTML = `<p>Error: ${data.message}</p>`;
+                }
+            } catch (error) {
+                console.error('Error al cargar notas:', error);
+                notesContainer.innerHTML = '<p>Error al cargar las notas.</p>';
+            }
+        }
+
+        savePatientNoteBtn.addEventListener('click', async () => {
+            const contenido = newPatientNote.value.trim();
+
+            if (contenido.length > 1000) {
+                errorDiv.textContent = 'La nota no puede exceder los 1000 caracteres.';
+                newPatientNote.classList.add('is-invalid');
+                return;
+            }
+
+            if (!contenido) {
+                errorDiv.textContent = 'La nota no puede estar vacía.';
+                newPatientNote.classList.add('is-invalid');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/paciente/{{ paciente.id }}/notas`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ contenido })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    newPatientNote.value = '';
+                    newPatientNote.classList.remove('is-invalid');
+                    errorDiv.textContent = '';
+                    await loadNotes();
+                } else {
+                    errorDiv.textContent = data.message;
+                    newPatientNote.classList.add('is-invalid');
+                }
+            } catch (error) {
+                console.error('Error al guardar nota:', error);
+                errorDiv.textContent = 'Error al guardar la nota.';
+                newPatientNote.classList.add('is-invalid');
+            }
+        });
+
+        await loadNotes();
+    });
+</script>
+{% endblock %}

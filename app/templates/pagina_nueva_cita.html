@@ -1,0 +1,257 @@
+{% extends 'base.html' %} {% block title %}Nueva Cita - PsychCalendar{% endblock
+%} {% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pagina_nueva_cita.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…." crossorigin="anonymous">
+{% endblock %} {% block content %}
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link" id="calendar-tab-btn">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link active">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link" id="patients-tab-btn">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Agendar Cita con Nuevo Paciente</h1>
+        </div>
+
+        <!-- Form Container -->
+        <div class="fade-in">
+            <div class="appointment-container">
+                <div class="appointment-header">
+                    <h2><i class="fas fa-calendar-plus"></i> Nueva Cita</h2>
+                </div>
+
+                <div class="form-container">
+                    <form action="{{ url_for('main.nueva_cita') }}" method="POST" id="appointment-form-page">
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="paciente_id">
+                                        Paciente
+                                        <span style="color: var(--danger-color)">*</span>
+                                    </label>
+                                    <select id="paciente_id" name="paciente_id" class="form-control" required>
+                                        <option value="">Seleccionar Paciente</option>
+                                        {% for paciente in pacientes %}
+                                        <option value="{{ paciente.id }}">{{ paciente.nombre }} {{ paciente.apellido }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tipo_cita_id">
+                                        Motivo
+                                        <span style="color: var(--danger-color)">*</span>
+                                    </label>
+                                    <select id="tipo_cita_id" name="tipo_cita_id" class="form-control" required>
+                                        <option value="">Seleccionar motivo</option>
+                                        {% for tipo in tipos_cita %}
+                                        <option value="{{ tipo.id }}" data-duracion="{{ tipo.duracion_predeterminada }}"
+                                            data-color="{{ tipo.color }}">
+                                            {{ tipo.nombre }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-text text-muted tipo-descripcion"></small>
+                                </div>
+                            </div>
+
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label for="fecha">
+                                        Fecha
+                                        <span style="color: var(--danger-color)">*</span>
+                                    </label>
+                                    <input type="date" id="fecha" name="fecha" class="form-control" required min="" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="hora">
+                                        Hora
+                                        <span style="color: var(--danger-color)">*</span>
+                                    </label>
+                                    <input type="text" id="hora" name="hora" class="form-control" readonly required
+                                        value="Selecciona la hora desde Horas Disponibles" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notas">Notas</label>
+                            <textarea id="notas" name="notas" class="form-control" rows="3"
+                                placeholder="Añada información relevante sobre la cita..."></textarea>
+                        </div>
+
+                        <div class="form-group form-check mt-3">
+                            <input type="checkbox" class="form-check-input" id="sync_google" name="sync_google">
+                            <label class="form-check-label" for="sync_google">
+                                <i class="fab fa-google text-primary"></i> Sincronizar con Google Calendar
+                            </label>
+                            <small class="form-text text-muted">
+                                Al marcar esta opción, podrás sincronizar esta cita con tu calendario de Google después
+                                de guardarla.
+                            </small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-btn">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="save-btn">
+                                <i class="fas fa-save"></i> Guardar Cita
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Helper Boxes -->
+            <div class="utility-box fade-in">
+                <h3><i class="fas fa-info-circle"></i> Horarios Disponibles</h3>
+                <p style="margin-bottom: 0.5rem; color: var(--dark-color)">
+                    Seleccione un horario disponible para la cita:
+                </p>
+                <div class="time-slots">
+                    <div class="time-slot" data-hora="07:00">07:00</div>
+                    <div class="time-slot" data-hora="07:30">07:30</div>
+                    <div class="time-slot" data-hora="08:00">08:00</div>
+                    <div class="time-slot" data-hora="08:30">08:30</div>
+                    <div class="time-slot" data-hora="09:00">09:00</div>
+                    <div class="time-slot" data-hora="09:30">09:30</div>
+                    <div class="time-slot" data-hora="10:00">10:00</div>
+                    <div class="time-slot" data-hora="10:30">10:30</div>
+                    <div class="time-slot" data-hora="11:00">11:00</div>
+                    <div class="time-slot" data-hora="11:30">11:30</div>
+                    <div class="time-slot" data-hora="12:00">12:00</div>
+                    <div class="time-slot" data-hora="12:30">12:30</div>
+                    <div class="time-slot" data-hora="13:00">13:00</div>
+                    <div class="time-slot" data-hora="13:30">13:30</div>
+                    <div class="time-slot" data-hora="14:00">14:00</div>
+                    <div class="time-slot" data-hora="14:30">14:30</div>
+                    <div class="time-slot" data-hora="15:00">15:00</div>
+                    <div class="time-slot" data-hora="15:30">15:30</div>
+                    <div class="time-slot" data-hora="16:00">16:00</div>
+                    <div class="time-slot" data-hora="16:30">16:30</div>
+                    <div class="time-slot" data-hora="17:00">17:00</div>
+                    <div class="time-slot" data-hora="17:30">17:30</div>
+                    <div class="time-slot" data-hora="18:00">18:00</div>
+                    <div class="time-slot" data-hora="18:30">18:30</div>
+                    <div class="time-slot" data-hora="19:00">19:00</div>
+                    <div class="time-slot" data-hora="19:30">19:30</div>
+                    <div class="time-slot" data-hora="20:00">20:00</div>
+                    <div class="time-slot" data-hora="20:30">20:30</div>
+                    <div class="time-slot" data-hora="21:00">21:00</div>
+                </div>
+
+                <!-- Pasamos las horas ocupadas al JS -->
+                <div id="horas-ocupadas" data-horas="{{ horas_ocupadas | tojson | safe }}"></div>
+            </div>
+
+            <div class="utility-box fade-in">
+                <h3>
+                    <i class="fas fa-user-plus"></i> Información del Paciente
+                </h3>
+                <p style="margin-bottom: 1rem; color: var(--dark-color)">
+                    Si el paciente es nuevo, ingrese información adicional:
+                </p>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="patient-phone">Teléfono</label>
+                            <input type="tel" id="patient-phone" class="form-control"
+                                placeholder="Teléfono de contacto" />
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="patient-email">Email</label>
+                            <input type="email" id="patient-email" class="form-control"
+                                placeholder="Correo electrónico" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="patient-notes">Notas sobre el paciente</label>
+                    <textarea id="patient-notes" class="form-control" rows="2"
+                        placeholder="Motivo de consulta, información relevante, etc."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1rem">
+                    <div style="flex: 1">
+                        <label class="checkbox-container" style="
+                                display: flex;
+                                align-items: center;
+                                cursor: pointer;
+                            ">
+                            <input type="checkbox" id="save-patient" style="margin-right: 0.5rem" />
+                            <span>Guardar como nuevo paciente en el sistema</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='js/pagina_nueva_cita.js') }}"></script>
+{% endblock %}

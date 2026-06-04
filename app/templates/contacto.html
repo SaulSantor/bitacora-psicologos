@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+<!---->
+{% block title %}Contacto - PsychCalendar{% endblock %}
+<!---->
+{% block styles %}
+<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…." crossorigin="anonymous">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/contacto.css') }}" />
+{% endblock %}
+<!---->
+{% block content %}
+<div class="contact-page">
+    <!-- Cabecera -->
+    <div class="contact-header">
+        <div class="container">
+            <h1 class="contact-title">Contáctanos</h1>
+            <p class="contact-subtitle">Estamos aquí para ayudarte. Completa el formulario y nos pondremos en contacto
+                contigo lo antes posible.</p>
+        </div>
+    </div>
+
+    <!-- Mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="toast-container">
+        {% for category, message in messages %}
+        <div class="toast-alert toast-{{ category }} show">
+            <div class="toast-header">
+                <strong class="me-auto">
+                    {% if category == 'success' %}
+                    Éxito
+                    {% elif category == 'danger' %}
+                    Error
+                    {% elif category == 'warning' %}
+                    Advertencia
+                    {% elif category == 'info' %}
+                    Información
+                    {% else %}
+                    Mensaje
+                    {% endif %}
+                </strong>
+                <button type="button" class="btn-close" onclick="closeToast(this)"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Contenido principal -->
+    <div class="contact-content">
+        <div class="container">
+            <div class="contact-wrapper">
+                <!-- Formulario de contacto -->
+                <div class="contact-form-card">
+                    <div class="card-header">
+                        <h2>Envíanos un mensaje</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="contactForm" action="{{ url_for('main.contacto') }}" method="POST">
+                            <input type="hidden"">
+
+                            <div class=" form-group">
+                            <label for="nombre">Nombre completo <span class="required">*</span></label>
+                            <input type="text" id="nombre" name="nombre" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="asunto">Asunto <span class="required">*</span></label>
+                        <select id="asunto" name="asunto" class="form-control" required>
+                            <option value="">Seleccione un asunto</option>
+                            <option value="Información general">Información general</option>
+                            <option value="Soporte técnico">Soporte técnico</option>
+                            <option value="Citas">Consultas sobre citas</option>
+                            <option value="Pacientes">Gestión de pacientes</option>
+                            <option value="Facturación">Facturación</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mensaje">Mensaje <span class="required">*</span></label>
+                        <textarea id="mensaje" name="mensaje" class="form-control" rows="5" required></textarea>
+                    </div>
+
+                    <div class="form-group form-check">
+                        <input type="checkbox" id="politica" name="politica" class="form-check-input" required>
+                        <label for="politica" class="form-check-label">
+                            He leído y acepto la <a href="#" class="policy-link">política de privacidad</a>
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información de contacto -->
+            <div class="contact-info-card">
+                <div class="card-header">
+                    <h2>Información de contacto</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="info-text">
+                            <h3>Dirección</h3>
+                            <p>Calle Principal 123, Ciudad, CP 12345</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="info-text">
+                            <h3>Teléfono</h3>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-text">
+                            <h3>Email</h3>
+                            <p>psychcalendarventas@gmail.com</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-text">
+                            <h3>Horario de atención</h3>
+                            <p>Lunes a Viernes: 9:00 AM - 6:00 PM</p>
+                            <p>Sábado: 9:00 AM - 1:00 PM</p>
+                        </div>
+                    </div>
+
+                    <div class="social-links">
+                        <h3>Síguenos</h3>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon" title="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-icon" title="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-icon" title="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="social-icon" title="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapa -->
+        <div class="map-container">
+            <h2>Nuestra ubicación</h2>
+            <div class="map-frame">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.0272095860074!2d-106.08913102427508!3d28.67461868433343!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86ea43c9f720c015%3A0x2dd91ba8d553ca7a!2sChihuahua%2C%20Chihuahua%2C%20Mexico!5e0!3m2!1sen!2sus!4v1616682943123!5m2!1sen!2sus"
+                    width="100%" height="500" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+
+        <!-- FAQ o información adicional -->
+        <div class="faq-section">
+            <h2>Preguntas Frecuentes</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        ¿Cuál es el tiempo de respuesta a mis consultas?
+                        <span class="faq-toggle"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Nos comprometemos a responder todas las consultas en un plazo máximo de 24 horas hábiles.
+                            Para casos urgentes, recomendamos contactarnos por teléfono.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        ¿Ofrecen soporte técnico para la plataforma?
+                        <span class="faq-toggle"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Sí, ofrecemos soporte técnico completo para todos los usuarios de PsychCalendar. Nuestro
+                            equipo está disponible durante el horario de atención para resolver cualquier problema
+                            técnico.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        ¿Cómo puedo solicitar una demostración del sistema?
+                        <span class="faq-toggle"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Puede solicitar una demostración gratuita utilizando el formulario de contacto.
+                            Seleccione "Información general" como asunto y mencione que está interesado en una
+                            demostración.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Cerrar toast
+    function closeToast(button) {
+        const toast = button.closest('.toast-alert');
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }
+
+    // Abrir/cerrar preguntas frecuentes
+    function toggleFaq(element) {
+        const answer = element.nextElementSibling;
+        const icon = element.querySelector('.faq-toggle i');
+
+        if (answer.style.maxHeight) {
+            answer.style.maxHeight = null;
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        } else {
+            answer.style.maxHeight = answer.scrollHeight + "px";
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        }
+    }
+
+    // Validación del formulario
+    document.getElementById('contactForm').addEventListener('submit', function (event) {
+        let valid = true;
+        const nombre = document.getElementById('nombre');
+        const email = document.getElementById('email');
+        const asunto = document.getElementById('asunto');
+        const mensaje = document.getElementById('mensaje');
+
+        if (nombre.value.trim() === '') {
+            valid = false;
+            nombre.classList.add('is-invalid');
+        } else {
+            nombre.classList.remove('is-invalid');
+        }
+
+        if (email.value.trim() === '' || !validateEmail(email.value)) {
+            valid = false;
+            email.classList.add('is-invalid');
+        } else {
+            email.classList.remove('is-invalid');
+        }
+
+        if (asunto.value === '') {
+            valid = false;
+            asunto.classList.add('is-invalid');
+        } else {
+            asunto.classList.remove('is-invalid');
+        }
+
+        if (mensaje.value.trim() === '') {
+            valid = false;
+            mensaje.classList.add('is-invalid');
+        } else {
+            mensaje.classList.remove('is-invalid');
+        }
+
+        if (!valid) {
+            event.preventDefault();
+        }
+    });
+
+    function validateEmail(email) {
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+</script>
+{% endblock %}

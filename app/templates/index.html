@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+<!---->
+{% block title %}Bienvenido a PsychCalendar{% endblock%}
+<!---->
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…." crossorigin="anonymous">
+{% endblock %}
+<!---->
+{% block content %}
+<div class="landing-page">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>PsychCalendar</h1>
+            <h2>La solución integral para profesionales de la psicología</h2>
+            <p>
+                Optimiza tu gestión de pacientes, citas y seguimientos clínicos
+                con nuestra herramienta especializada.
+            </p>
+            <div class="hero-actions">
+                {% if current_user.is_authenticated and current_user.tipo_usuario == 'psicologo' %}
+                <a href="{{ url_for('main.psicologo') }}" class="btn btn-primary btn-lg">Ir a mi calendario</a>
+                {% else %}
+                <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-lg">Comenzar ahora</a>
+                {% endif %}
+                <a href="#features" class="btn btn-outline btn-lg">Conocer más</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <i class="fas fa-brain"></i>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="section-header">
+            <h2>Características destacadas</h2>
+            <p>
+                Descubre cómo PsychCalendar puede transformar tu práctica
+                profesional
+            </p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3>Gestión de citas</h3>
+                <p>
+                    Organiza tu agenda con un sistema intuitivo de calendario.
+                    Programa, reprograma y gestiona citas con facilidad.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Gestión de pacientes</h3>
+                <p>
+                    Administra toda la información de tus pacientes en un solo
+                    lugar, con historiales completos y acceso rápido.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3>Recordatorios automáticos</h3>
+                <p>
+                    Reduce ausencias con recordatorios automáticos para tus
+                    pacientes y para ti mismo.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Estadísticas y análisis</h3>
+                <p>
+                    Visualiza patrones de asistencia, ingresos y más con nuestro
+                    completo sistema de estadísticas.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Expediente clínico</h3>
+                <p>
+                    Mantén registros detallados de cada sesión y del progreso de
+                    tus pacientes en formato digital.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Seguridad garantizada</h3>
+                <p>
+                    Toda la información está protegida con los más altos
+                    estándares de seguridad y confidencialidad.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="section-header">
+            <h2>Lo que dicen nuestros usuarios</h2>
+            <p>
+                Profesionales que han transformado su práctica con PsychCalendar
+            </p>
+        </div>
+        <div class="testimonials-slider">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p>
+                        "PsychCalendar ha transformado por completo mi consulta.
+                        Ahora puedo dedicar más tiempo a mis pacientes y menos a
+                        tareas administrativas."
+                    </p>
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="author-info">
+                        <h4>Dra. María González</h4>
+                        <p>Psicóloga Clínica</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p>
+                        "El sistema de estadísticas me ha permitido entender
+                        mejor los patrones de asistencia de mis pacientes y
+                        optimizar mis horarios."
+                    </p>
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="author-info">
+                        <h4>Dr. Carlos Rodríguez</h4>
+                        <p>Psicólogo Infantil</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p>
+                        "Los recordatorios automáticos han reducido
+                        significativamente las ausencias en mi consulta. ¡Una
+                        herramienta imprescindible!"
+                    </p>
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="author-info">
+                        <h4>Dra. Ana Martínez</h4>
+                        <p>Psicoterapeuta</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing-section">
+        <div class="section-header">
+            <h2>Planes diseñados para ti</h2>
+            <p>
+                Elige el plan que mejor se adapte a las necesidades de tu
+                consulta
+            </p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Básico</h3>
+                    <div class="pricing-price">
+                        <span class="price">$29</span>
+                        <span class="period">/mes</span>
+                    </div>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li><i class="fas fa-check"></i> Hasta 50 pacientes</li>
+                        <li><i class="fas fa-check"></i> Calendario básico</li>
+                        <li>
+                            <i class="fas fa-check"></i> Recordatorios por email
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Expedientes clínicos
+                        </li>
+                    </ul>
+                </div>
+                <div class="pricing-action">
+                    <a href="{{ url_for('main.register') }}" class="btn btn-outline btn-block">Empezar ahora</a>
+                </div>
+            </div>
+            <div class="pricing-card featured">
+                <div class="pricing-badge">Más popular</div>
+                <div class="pricing-header">
+                    <h3>Avanzado</h3>
+                    <div class="pricing-price">
+                        <span class="price">$49</span>
+                        <span class="period">/mes</span>
+                    </div>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li>
+                            <i class="fas fa-check"></i> Pacientes ilimitados
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Calendario avanzado
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Recordatorios SMS y
+                            email
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Expedientes clínicos
+                            completos
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Estadísticas avanzadas
+                        </li>
+                        <li><i class="fas fa-check"></i> Personalización</li>
+                    </ul>
+                </div>
+                <div class="pricing-action">
+                    <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-block">Empezar ahora</a>
+                </div>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>Empresarial</h3>
+                    <div class="pricing-price">
+                        <span class="price">$99</span>
+                        <span class="period">/mes</span>
+                    </div>
+                </div>
+                <div class="pricing-features">
+                    <ul>
+                        <li>
+                            <i class="fas fa-check"></i> Múltiples profesionales
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Todas las funciones
+                            profesionales
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Facturación integrada
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Gestión de personal
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Reportes personalizados
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i> Soporte prioritario
+                        </li>
+                    </ul>
+                </div>
+                <div class="pricing-action">
+                    <a href="{{ url_for('main.register') }}" class="btn btn-outline btn-block">Empezar ahora</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>¿Listo para transformar tu práctica profesional?</h2>
+            <p>
+                Únete a miles de psicólogos que han optimizado su trabajo con
+                PsychCalendar
+            </p>
+            <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-lg">Comenzar prueba gratuita</a>
+        </div>
+    </section>
+</div>
+{% endblock %}
+<!---->
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+{% endblock %}

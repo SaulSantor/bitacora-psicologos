@@ -1,0 +1,531 @@
+{% extends 'base.html' %}
+<!---->
+{% block title %}Historial de Citas - PsychCalendar{% endblock %}
+<!---->
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/historial.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…." crossorigin="anonymous">
+{% endblock %}
+<!---->
+{% block content %}
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link active">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Historial de Citas</h1>
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar cita..." id="searchAppointment" />
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <!-- History Content -->
+        <div class="fade-in">
+            <div class="history-container">
+                <div class="history-header">
+                    <h2>Registro de Citas</h2>
+                    <div class="history-controls">
+                        <a href="{{ url_for('main.nueva_cita') }}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Nueva Cita
+                        </a>
+                        <button class="btn btn-primary" id="exportBtn">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Form -->
+                <div style="padding: 1rem">
+                    <form id="filterForm" class="form-group filter-form">
+                        <div style="flex: 1">
+                            <label for="history-from-date">Desde</label>
+                            <input type="date" id="history-from-date" name="from_date" class="form-control" />
+                        </div>
+                        <div style="flex: 1">
+                            <label for="history-to-date">Hasta</label>
+                            <input type="date" id="history-to-date" name="to_date" class="form-control" />
+                        </div>
+                        <div style="flex: 1">
+                            <label for="history-patient">Paciente</label>
+                            <select id="history-patient" name="paciente_id" class="form-control">
+                                <option value="">Todos los pacientes</option>
+                                {% for paciente in pacientes.values() %}
+                                <option value="{{ paciente.id }}">
+                                    {{ paciente.nombre }} {{ paciente.apellido
+                                    }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="flex: 1">
+                            <label for="history-type">Tipo de Cita</label>
+                            <select id="history-type" name="tipo" class="form-control">
+                                <option value="">Todos los tipos</option>
+                                <!-- Las opciones restantes serán cargadas dinámicamente por JavaScript -->
+                            </select>
+                        </div>
+                        <div style="flex: 1">
+                            <label for="history-status">Status</label>
+                            <select id="history-status" name="status" class="form-control">
+                                <option value="">Todos los status</option>
+                                <option value="Programada">Programada</option>
+                                <option value="Confirmada">Confirmada</option>
+                                <option value="Completada">Completada</option>
+                                <option value="Cancelada">Cancelada</option>
+                                <option value="Reprogramada">
+                                    Reprogramada
+                                </option>
+                            </select>
+                        </div>
+                        <div style="align-self: flex-end">
+                            <button type="submit" class="btn btn-primary">
+                                Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="history-container">
+                <div style="overflow-x: auto">
+                    <table class="appointments-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Paciente</th>
+                                <th>Tipo</th>
+                                <th>status</th>
+                                <th>Notas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-list">
+                            {% for cita in citas %}
+                            <tr>
+                                <td>{{ cita.fecha.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ cita.fecha.strftime('%H:%M') }}</td>
+                                <td>
+                                    {{ pacientes[cita.paciente_id].nombre }} {{
+                                    pacientes[cita.paciente_id].apellido }}
+                                </td>
+                                <td>{{ cita.tipo_cita.nombre if cita.tipo_cita else "No especificado" }}</td>
+                                <td>
+                                    {% if cita.status == 'Completada' %}
+                                    <span class="status-badge status-vigente">{{ cita.status }}</span>
+                                    {% elif cita.status == 'Programada' %}
+                                    <span class="status-badge status-waiting">{{ cita.status }}</span>
+                                    {% elif cita.status == 'Cancelada' %}
+                                    <span class="status-badge status-urgencia">{{ cita.status }}</span>
+                                    {% else %}
+                                    <span class="status-badge status-orientacion">{{ cita.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if cita.notas %}
+                                    {{ cita.notas|truncate(50) }}
+                                    {% else %}
+                                    <span>no hay notas programadas</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="view-btn" title="Ver detalles"
+                                            onclick="viewAppointmentDetails('{{ cita.id }}')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <a href="{{ url_for('main.editar_cita', cita_id=cita.id) }}" class="edit-btn"
+                                            title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="action-btn notes-btn" title="Notas"
+                                            onclick="showAppointmentNotes('{{ cita.id }}')">
+                                            <i class="fas fa-clipboard"></i>
+                                        </button>
+                                        <button class="delete-btn" title="Eliminar"
+                                            onclick="confirmDeleteAppointment('{{ cita.id }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    No hay citas registradas
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div style="
+                        padding: 1rem;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    ">
+                    <div>
+                        <select class="form-control" style="width: auto; display: inline-block" id="page-size">
+                            <option value="10">10 por página</option>
+                            <option value="25">25 por página</option>
+                            <option value="50">50 por página</option>
+                            <option value="100">100 por página</option>
+                        </select>
+                    </div>
+                    <div class="pagination">
+                        <button class="pagination-btn" title="Página anterior" id="prev-page">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="pagination-info">Página <span id="current-page">1</span> de
+                            <span id="total-pages">{{ (citas|length / 10)|round(0, 'ceil')|int
+                                }}</span></span>
+                        <button class="pagination-btn" title="Página siguiente" id="next-page">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="history-container">
+                <div class="history-header">
+                    <h2>Resumen de Actividad</h2>
+                </div>
+                <div style="
+                        padding: 1rem;
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 1rem;
+                    ">
+                    <div style="
+                            flex: 1;
+                            min-width: 200px;
+                            background-color: #f8f9fc;
+                            padding: 1rem;
+                            border-radius: 0.35rem;
+                            border-left: 4px solid var(--primary-color);
+                        ">
+                        <h3 style="
+                                font-size: 0.8rem;
+                                text-transform: uppercase;
+                                color: var(--dark-color);
+                                margin-bottom: 0.5rem;
+                            ">
+                            Total de Citas
+                        </h3>
+                        <p style="
+                                font-size: 1.5rem;
+                                font-weight: 700;
+                                margin: 0;
+                            ">
+                            {{ total_citas }}
+                        </p>
+                    </div>
+                    <div style="
+                            flex: 1;
+                            min-width: 200px;
+                            background-color: #f8f9fc;
+                            padding: 1rem;
+                            border-radius: 0.35rem;
+                            border-left: 4px solid var(--secondary-color);
+                        ">
+                        <h3 style="
+                                font-size: 0.8rem;
+                                text-transform: uppercase;
+                                color: var(--dark-color);
+                                margin-bottom: 0.5rem;
+                            ">
+                            Citas Completadas
+                        </h3>
+                        <p style="
+                                font-size: 1.5rem;
+                                font-weight: 700;
+                                margin: 0;
+                            ">
+                            {{ citas_completadas }}
+                        </p>
+                    </div>
+                    <div style="
+                            flex: 1;
+                            min-width: 200px;
+                            background-color: #f8f9fc;
+                            padding: 1rem;
+                            border-radius: 0.35rem;
+                            border-left: 4px solid var(--info-color);
+                        ">
+                        <h3 style="
+                                font-size: 0.8rem;
+                                text-transform: uppercase;
+                                color: var(--dark-color);
+                                margin-bottom: 0.5rem;
+                            ">
+                            Pacientes Atendidos
+                        </h3>
+                        <p style="
+                                font-size: 1.5rem;
+                                font-weight: 700;
+                                margin: 0;
+                            ">
+                            {{ pacientes_atendidos }}
+                        </p>
+                    </div>
+                    <div style="
+                            flex: 1;
+                            min-width: 200px;
+                            background-color: #f8f9fc;
+                            padding: 1rem;
+                            border-radius: 0.35rem;
+                            border-left: 4px solid var(--warning-color);
+                        ">
+                        <h3 style="
+                                font-size: 0.8rem;
+                                text-transform: uppercase;
+                                color: var(--dark-color);
+                                margin-bottom: 0.5rem;
+                            ">
+                            Tasa de Asistencia
+                        </h3>
+                        <p style="
+                                font-size: 1.5rem;
+                                font-weight: 700;
+                                margin: 0;
+                            ">
+                            {{ tasa_asistencia|round(1) }}%
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div id="appointment-details-modal" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    ">
+    <div style="
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 600px;
+            animation: fadeIn 0.3s;
+        ">
+        <div style="
+                padding: 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid var(--border-color);
+            ">
+            <h3 style="font-size: 1.25rem; font-weight: 500; margin: 0">
+                Detalles de la Cita
+            </h3>
+            <button style="
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: var(--dark-color);
+                " onclick="closeAppointmentModal()">
+                &times;
+            </button>
+        </div>
+        <div style="padding: 1rem">
+            <div id="appointment-details-content">
+                <!-- Detalles de la cita (cargados con JavaScript) -->
+            </div>
+        </div>
+        <div class="modal-actions" style="
+        padding: 1rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        border-top: 1px solid var(--border-color);
+    ">
+            <button class="btn btn-secondary" onclick="closeAppointmentModal()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    ">
+    <div style="
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 400px;
+            animation: fadeIn 0.3s;
+        ">
+        <div style="padding: 1rem; border-bottom: 1px solid var(--border-color)">
+            <h3 style="font-size: 1.25rem; font-weight: 500; margin: 0">
+                Confirmar eliminación
+            </h3>
+        </div>
+        <div style="padding: 1rem">
+            <p>
+                ¿Está seguro de que desea eliminar esta cita? Esta acción no se
+                puede deshacer.
+            </p>
+            <div style="
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 1rem;
+                    margin-top: 1rem;
+                ">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">
+                    Cancelar
+                </button>
+                <button class="btn btn-danger" id="confirm-delete">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notes Modal -->
+<div id="notes-modal" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    ">
+    <div style="
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 600px;
+            animation: fadeIn 0.3s;
+        ">
+        <div style="
+                padding: 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid var(--border-color);
+            ">
+            <h3 style="font-size: 1.25rem; font-weight: 500; margin: 0">
+                Notas de la Cita
+            </h3>
+            <button style="
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: var(--dark-color);
+                " onclick="closeNotesModal()">
+                &times;
+            </button>
+        </div>
+        <div style="padding: 1rem" id="notes-content">
+            <!-- Contenido de las notas se cargará dinámicamente -->
+        </div>
+        <div style="
+                padding: 1rem;
+                border-top: 1px solid var(--border-color);
+                display: flex;
+                justify-content: flex-end;
+            ">
+            <button type="button" class="btn btn-primary" onclick="closeNotesModal()">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!---->
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/historial.js') }}"></script>
+{% endblock %}

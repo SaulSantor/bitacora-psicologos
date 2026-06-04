@@ -1,0 +1,271 @@
+{% extends 'base.html' %} {% block title %}Calendario de Citas - Psicólogo{%
+endblock %} {% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/psicologo.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…." crossorigin="anonymous">
+{% endblock %} {% block content %}
+<div class="container">
+    {% if current_user.is_authenticated %}
+    <div class="notification-icon" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+        <a href="{{ url_for('main.notificaciones') }}"
+            style="text-decoration: none; position: relative; display: inline-block;">
+            <i class="fas fa-bell" style="font-size: 24px; color: #4e73df;"></i>
+            {% set count = get_notificaciones_no_leidas(current_user.id)|length %}
+            {% if count > 0 %}
+            <span
+                style="position: absolute; top: -8px; right: -8px; background-color: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center;">
+                {{ count }}
+            </span>
+            {% endif %}
+        </a>
+    </div>
+    {% endif %}
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link active" id="calendar-tab-btn">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link prueba-1" id="patients-tab-btn">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Panel de Control</h1>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" id="calendar-tab">Calendario</div>
+            <div class="tab" id="patients-tab">Pacientes</div>
+        </div>
+
+        <!-- Agregar esta sección al archivo psicologo.html en el lugar apropiado -->
+        <div class="tab-pane" id="calendario">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prev-month" class="calendar-nav-btn">&lt;</button>
+                    <h2 id="calendar-month-year">Mes Año</h2>
+                    <button id="next-month" class="calendar-nav-btn">&gt;</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <div>Dom</div>
+                    <div>Lun</div>
+                    <div>Mar</div>
+                    <div>Mié</div>
+                    <div>Jue</div>
+                    <div>Vie</div>
+                    <div>Sáb</div>
+                </div>
+                <div id="calendar-days" class="calendar-days">
+                    <!-- Los días se generarán dinámicamente con JavaScript -->
+                </div>
+            </div>
+
+            <!-- Modal para crear nueva cita -->
+            <div id="create-cita-modal" class="modal" data-nuevo-paciente-url="{{ url_for('main.nuevo_paciente') }}">
+                <div class="modal-content">
+                    <span class="close-modal">×</span>
+                    <h2>Crear Nueva Cita</h2>
+                    <form id="create-cita-form" action="{{ url_for('main.nueva_cita') }}" method="POST">
+                        <div class="form-group">
+                            <label for="paciente_id">Paciente:</label>
+                            <select id="paciente_id" name="paciente_id" required>
+                                <option value="">Selecciona un paciente</option>
+                            </select>
+                            <div id="no-pacientes-message" style="display: none; margin-top: 5px; color: #888;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha">Fecha:</label>
+                            <input type="date" id="fecha" name="fecha" readonly min="">
+                        </div>
+                        <div class="form-group">
+                            <label for="hora">Hora:</label>
+                            <select id="hora" name="hora" required>
+                                <option value="">Selecciona una hora</option>
+                            </select>
+                            <div id="horas-ocupadas" class="horas-ocupadas"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo_cita_id">Tipo de cita:</label>
+                            <select id="tipo_cita_id" name="tipo_cita_id" required>
+                                <option value="">Selecciona un tipo de cita</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="motivo">Motivo:</label>
+                            <textarea id="motivo" name="motivo"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="notas">Notas:</label>
+                            <textarea id="notas" name="notas"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="sync_google" name="sync_google">
+                                Sincronizar con Google Calendar
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Crear Cita</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para mostrar detalles de cita -->
+        <div id="cita-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Detalles de la Cita</h2>
+                <div id="cita-details">
+                    <!-- Los detalles se cargarán dinámicamente -->
+                </div>
+                <div class="modal-actions">
+                    <button id="edit-cita" class="btn btn-primary">Editar</button>
+                    <button id="delete-cita" class="btn btn-danger">Eliminar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patients Tab Content -->
+        <div class="tab-content" id="patients-content">
+            <div class="patients-container">
+                <div class="patients-header">
+                    <h2>Lista de Pacientes</h2>
+                    <a href="{{ url_for('main.nuevo_paciente') }}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Nuevo Paciente
+                    </a>
+                </div>
+
+                <div style="overflow-x: auto">
+                    <table class="patients-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Status</th>
+                                <th>Diagnóstico</th>
+                                <th>Última Cita</th>
+                                <th>Próxima Cita</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <!-- En la sección de pacientes, necesitamos actualizar esta parte para usar los datos de Flask -->
+                        <tbody id="patients-list">
+                            {% for paciente in pacientes %}
+                            <tr>
+                                <td>{{ paciente.nombre }} {{ paciente.apellido }}</td>
+                                <td>
+                                    {% if paciente.status == 'vigente' %}
+                                    <span class="status-badge status-vigente">Vigente</span>
+                                    {% elif paciente.status == 'orientacion' %}
+                                    <span class="status-badge status-orientacion">Orientacion</span>
+                                    {% elif paciente.status == 'urgencia' %}
+                                    <span class="status-badge status-urgencia">Urgencia</span>
+                                    {% elif paciente.status == 'waiting' %}
+                                    <span class="status-badge status-waiting">En Espera</span>
+                                    {% else %}
+                                    <span class="status-badge status-Vigente">Vigente</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ paciente.diagnostico|default('No especificado') }}</td>
+                                <td>
+                                    {% if paciente.ultima_cita %}
+                                    {{ paciente.ultima_cita.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if paciente.proxima_cita %}
+                                    {{ paciente.proxima_cita.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('main.detalles_paciente', paciente_id=paciente.id) }}"
+                                        class="btn btn-info">Detalles</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No hay pacientes registrados</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                        <!-- También necesitas asegurarte de que estos IDs estén correctamente definidos en el HTML -->
+                        <div class="calendar-grid">
+                            <div class="calendar-day-header">Dom</div>
+                            <div class="calendar-day-header">Lun</div>
+                            <div class="calendar-day-header">Mar</div>
+                            <div class="calendar-day-header">Mié</div>
+                            <div class="calendar-day-header">Jue</div>
+                            <div class="calendar-day-header">Vie</div>
+                            <div class="calendar-day-header">Sáb</div>
+                            <!-- El JavaScript llenará esta sección con los días del mes -->
+                        </div>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='js/psicologo.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Política de Privacidad - PsychCalendar{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/legal.css') }}">
+{% endblock %}
+{% block content %}
+<div class="legal-content">
+    <h1>Política de Privacidad</h1>
+    <p><strong>Última actualización:</strong> 11 de junio de 2025</p>
+
+    <p>En <strong>PsychCalendar</strong> nos tomamos tu privacidad muy en serio. Esta política describe cómo
+        recopilamos, usamos y protegemos tus datos personales.</p>
+
+    <h2>1. Información que recolectamos</h2>
+    <ul>
+        <li>Nombre, correo electrónico y número de contacto.</li>
+        <li>Especialidad y credenciales del psicólogo (en su caso).</li>
+        <li>Historial de citas, horarios, y observaciones (solo accesibles por el profesional).</li>
+    </ul>
+
+    <h2>2. Cómo usamos tu información</h2>
+    <p>Utilizamos tus datos para brindarte el servicio, enviar notificaciones y mejorar la experiencia de usuario. Nunca
+        vendemos tu información.</p>
+
+    <h2>3. Seguridad</h2>
+    <p>Tu información se almacena en servidores seguros y usamos cifrado para protegerla.</p>
+
+    <h2>4. Derechos del usuario</h2>
+    <p>Puedes modificar o eliminar tus datos en cualquier momento desde la configuración de tu cuenta, o contactándonos.
+    </p>
+
+    <h2>5. Cookies</h2>
+    <p>Utilizamos cookies para mejorar tu experiencia, pero no con fines de seguimiento agresivo.</p>
+
+    <h2>6. Contacto</h2>
+    <p>Si tienes dudas sobre esta política, escríbenos a: <a
+            href="mailto:privacidad@psychcalendar.com">privacidad@psychcalendar.com</a></p>
+</div>
+{% endblock %}

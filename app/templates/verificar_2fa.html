@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Verificación de Seguridad - PsychCalendar{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="verification-container">
+    <div class="card auth-card">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-shield-alt mr-1"></i> Verificación de Seguridad
+            </h6>
+        </div>
+        <div class="card-body text-center">
+            <div class="auth-icon">
+                <i class="fas fa-key"></i>
+            </div>
+            <h5 class="card-title mb-2">Autenticación de Dos Factores</h5>
+            <p class="auth-subtitle">
+                Por favor, ingresa el código de 6 dígitos generado por tu aplicación de autenticación
+            </p>
+
+            <form method="POST" class="verification-form">
+                <div class="form-group">
+                    <input type="text" class="form-control form-control-lg text-center" id="token" name="token"
+                        placeholder="000000" maxlength="6" inputmode="numeric" autofocus required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg px-5">Verificar</button>
+
+                <div class="verification-help">
+                    El código cambia cada 30 segundos. <br>
+                    <a href="{{ url_for('main.login') }}" class="text-decoration-none">Volver al inicio de sesión</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        // Solo permitir dígitos en el campo de token
+        $('#token').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Enviar automáticamente cuando se ingresan 6 dígitos
+        $('#token').on('input', function () {
+            if (this.value.length === 6) {
+                $('form').submit();
+            }
+        });
+    });
+</script>
+{% endblock %}

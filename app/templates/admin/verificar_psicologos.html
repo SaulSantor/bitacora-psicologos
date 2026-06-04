@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+<!---->
+{% block title %}Verificar Psicólogos{% endblock %}
+<!---->
+{% block styles %}
+<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-..." crossorigin="anonymous">
+<style>
+    .card {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e3e6f0;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #4e73df;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th {
+        padding: 12px 15px;
+        text-align: left;
+        background-color: #f8f9fa;
+        color: #5a5c69;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 2px solid #e3e6f0;
+    }
+
+    .table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e3e6f0;
+        font-size: 14px;
+        color: #5a5c69;
+    }
+
+    .table tr:hover {
+        background-color: #f8f9fc;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 20px;
+    }
+
+    .badge-warning {
+        background-color: #f6c23e;
+        color: #fff;
+    }
+
+    .badge-success {
+        background-color: #1cc88a;
+        color: #fff;
+    }
+
+    .badge-danger {
+        background-color: #e74a3b;
+        color: #fff;
+    }
+
+    .badge-info {
+        background-color: #36b9cc;
+        color: #fff;
+    }
+
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        vertical-align: middle;
+        user-select: none;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.5;
+        border-radius: 5px;
+        transition: all 0.2s ease-in-out;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #4e73df;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2e59d9;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 5px;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
+    }
+</style>
+{% endblock %}
+<!---->
+{% block content %}
+<div class="container" style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
+    <h2 style="color: #5a5c69; font-weight: 700; margin-bottom: 25px;">
+        <i class="fas fa-user-check"></i> Verificación de Psicólogos
+    </h2>
+
+    <!-- Mensajes de flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-clock"></i> Psicólogos Pendientes de Verificación</h3>
+        </div>
+        <div class="card-body">
+            {% if psicologos %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Especialidad</th>
+                            <th>Institución</th>
+                            <th>Fecha Registro</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for psicologo in psicologos %}
+                        <tr>
+                            <td>{{ psicologo.nombre }} {{ psicologo.apellido }}</td>
+                            <td>
+                                {% if psicologo.usuario %}
+                                {{ psicologo.usuario.email }}
+                                {% else %}
+                                <span style="color: #e74a3b;">Usuario no encontrado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if psicologo.especialidad == 'psicologia-clinica' %}
+                                Psicología Clínica
+                                {% elif psicologo.especialidad == 'psicologia-infantil' %}
+                                Psicología Infantil
+                                {% elif psicologo.especialidad == 'psicologia-laboral' %}
+                                Psicología Laboral
+                                {% else %}
+                                {{ psicologo.especialidad or 'No especificada' }}
+                                {% endif %}
+                            </td>
+                            <td>{{ psicologo.institucion or 'No especificada' }}</td>
+                            <td>
+                                {% if psicologo.usuario %}
+                                {{ psicologo.usuario.fecha_registro.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                No disponible
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-warning">Pendiente</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('main.verificar_psicologo', id=psicologo.id) }}"
+                                    class="btn btn-primary btn-sm">
+                                    <i class="fas fa-search"></i> Verificar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No hay psicólogos pendientes de verificación en este momento.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Psicólogos verificados recientemente -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fas fa-check-circle"></i> Psicólogos Verificados Recientemente</h3>
+        </div>
+        <div class="card-body">
+            {% set psicologos_verificados = psicologos_verificados|default([]) %}
+            {% if psicologos_verificados %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Especialidad</th>
+                            <th>Fecha Verificación</th>
+                            <th>Verificado Por</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for psicologo in psicologos_verificados %}
+                        <tr>
+                            <td>{{ psicologo.nombre }} {{ psicologo.apellido }}</td>
+                            <td>
+                                {% if psicologo.usuario %}
+                                {{ psicologo.usuario.email }}
+                                {% else %}
+                                <span style="color: #e74a3b;">Usuario no encontrado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if psicologo.especialidad == 'psicologia-clinica' %}
+                                Psicología Clínica
+                                {% elif psicologo.especialidad == 'psicologia-infantil' %}
+                                Psicología Infantil
+                                {% elif psicologo.especialidad == 'psicologia-laboral' %}
+                                Psicología Laboral
+                                {% else %}
+                                {{ psicologo.especialidad or 'No especificada' }}
+                                {% endif %}
+                            </td>
+                            <td>{{ psicologo.fecha_verificacion.strftime('%d/%m/%Y') if psicologo.fecha_verificacion
+                                else 'No disponible' }}</td>
+                            <td>
+                                {% if psicologo.verificador %}
+                                {{ psicologo.verificador.email }}
+                                {% else %}
+                                Sistema
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-success">Verificado</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No hay psicólogos verificados recientemente.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!---->
+{% block scripts %}
+<script>
+    // Si tienes DataTables u otra librería para mejorar las tablas
+    document.addEventListener('DOMContentLoaded', function () {
+        // Código opcional para mejorar las tablas
+    });
+</script>
+{% endblock %}

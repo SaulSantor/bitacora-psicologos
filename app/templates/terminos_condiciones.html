@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Términos y Condiciones - PsychCalendar{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/legal.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="legal-content">
+    <h1>Términos y Condiciones de Uso</h1>
+    <p><strong>Última actualización:</strong> 11 de junio de 2025</p>
+
+    <p>Bienvenido/a a <strong>PsychCalendar</strong>, una plataforma diseñada para facilitar la gestión de citas entre
+        psicólogos y sus pacientes. Al registrarte o utilizar nuestros servicios, aceptas los siguientes términos y
+        condiciones:</p>
+
+    <h2>1. Aceptación de los términos</h2>
+    <p>Al crear una cuenta o utilizar la plataforma, confirmas que has leído, entendido y aceptado estos Términos y
+        Condiciones. Si no estás de acuerdo, por favor no utilices el servicio.</p>
+
+    <h2>2. Uso de la plataforma</h2>
+    <ul>
+        <li>El servicio está destinado exclusivamente a profesionales de la salud mental y a sus pacientes.</li>
+        <li>Está prohibido el uso con fines maliciosos o ilegales.</li>
+        <li>Debes proporcionar información real y mantener tu cuenta actualizada.</li>
+    </ul>
+
+    <h2>3. Disponibilidad del servicio</h2>
+    <p>Hacemos todo lo posible para mantener el servicio activo, pero no podemos garantizar que esté libre de errores o
+        interrupciones.</p>
+
+    <h2>4. Responsabilidad del usuario</h2>
+    <p>Eres responsable de las citas que gestiones. PsychCalendar no se hace responsable de cancelaciones o
+        malentendidos entre usuarios.</p>
+
+    <h2>5. Propiedad intelectual</h2>
+    <p>El diseño, código y contenidos de PsychCalendar son propiedad de la plataforma. Está prohibida su copia o
+        distribución sin autorización.</p>
+
+    <h2>6. Cancelación de cuentas</h2>
+    <p>Nos reservamos el derecho de suspender cuentas que incumplan estos términos.</p>
+
+    <h2>7. Modificaciones</h2>
+    <p>Estos términos pueden cambiar. Si eso ocurre, te avisaremos y al seguir usando el servicio, estarás aceptando los
+        cambios.</p>
+</div>
+{% endblock %}

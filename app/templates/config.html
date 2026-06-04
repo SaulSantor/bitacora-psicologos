@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+<!---->
+{% block title %}Configuración - PsychCalendar{% endblock %}
+<!---->
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/config.css') }}" />
+{% endblock %}
+<!---->
+{% block content %}
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link" id="calendar-tab-btn">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link" id="patients-tab-btn">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link active">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Configuración del Sistema</h1>
+            <div class="search-bar">
+                <input type="text" placeholder="Buscar ajustes...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <!-- Config Content -->
+        <div class="fade-in">
+            <div class="config-container">
+                <div class="config-header">
+                    <h2><i class="fas fa-cog"></i> Configuración</h2>
+                </div>
+
+                <!-- Tabs Navigation -->
+                <div class="config-tabs">
+                    <div class="config-tab" id="profile-tab">
+                        <i class="fas fa-user-md"></i> Perfil Profesional
+                    </div>
+                    <div class="config-tab" id="notifications-tab">
+                        <i class="fas fa-bell"></i> Notificaciones
+                    </div>
+                    <div class="config-tab" id="security-tab">
+                        <i class="fas fa-shield-alt"></i> Seguridad
+                    </div>
+                </div>
+
+                <!-- Profile Tab Content -->
+                <div class="tab-content active" id="profile-content">
+                    <div class="config-content">
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Información Personal</h3>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label for="title">Título</label>
+                                    <select id="title" class="form-control">
+                                        <option value="dr" {% if psicologo.titulo=='dr' %}selected{% endif %}>Dr.
+                                        </option>
+                                        <option value="dra" {% if psicologo.titulo=='dra' %}selected{% endif %}>Dra.
+                                        </option>
+                                        <option value="lic" {% if psicologo.titulo=='lic' %}selected{% endif %}>Lic.
+                                        </option>
+                                        <option value="prof" {% if psicologo.titulo=='prof' %}selected{% endif %}>Prof.
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-col">
+                                    <label for="specialty">Especialidad</label>
+                                    <select id="specialty" name="especialidad" class="form-control">
+                                        <option value="psicologia-clinica" {% if
+                                            psicologo.especialidad=='psicologia-clinica' %}selected{% endif %}>
+                                            Psicología Clínica
+                                        </option>
+                                        <option value="psicologia-infantil" {% if
+                                            psicologo.especialidad=='psicologia-infantil' %}selected{% endif %}>
+                                            Psicología Infantil
+                                        </option>
+                                        <option value="psicologia-laboral" {% if
+                                            psicologo.especialidad=='psicologia-laboral' %}selected{% endif %}>
+                                            Psicología Laboral
+                                        </option>
+                                        <option value="otro" {% if psicologo.especialidad=='otro' %}selected{% endif %}>
+                                            Otro
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Campo para ingresar otra especialidad si elige "Otro" -->
+                                <div class="form-col" id="otra-especialidad-field" {% if psicologo.especialidad !='otro'
+                                    %}style="display: none;" {% endif %}>
+                                    <label for="otra_especialidad">Especifique su especialidad</label>
+                                    <input type="text" id="otra_especialidad" name="otra_especialidad"
+                                        class="form-control"
+                                        value="{% if psicologo.especialidad == 'otro' %}{{ psicologo.otra_especialidad }}{% endif %}">
+                                </div>
+
+
+
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label for="fullname">Nombre Completo</label>
+                                    <input type="text" id="fullname" class="form-control"
+                                        value="{{ psicologo.nombre_completo }}">
+                                </div>
+                                <div class="form-col">
+                                    <label for="license">Cedula Profecional</label>
+                                    <input type="text" id="license" class="form-control"
+                                        value="{{ psicologo.numero_licencia }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Información de Contacto</h3>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label for="email">Correo Electrónico</label>
+                                    <input type="email" id="email" class="form-control"
+                                        value="{{ psicologo.usuario.email }}">
+                                </div>
+                                <div class="form-col">
+                                    <label for="phone">Teléfono</label>
+                                    <input type="tel" id="phone" class="form-control" value="{{ psicologo.telefono }}">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label for="address">Dirección de la Consulta</label>
+                                    <input type="text" id="address" class="form-control"
+                                        value="{{ psicologo.direccion_consulta }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary">Restaurar predeterminados</button>
+                            <button type="button" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Tab Content -->
+                <div class="tab-content" id="notifications-content">
+                    <div class="config-content">
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Notificaciones de Citas</h3>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="switch-label">
+                                        <span>Notificaciones por correo</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="email-notifications" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <label for="notification-time">Tiempo de anticipación</label>
+                                    <select id="notification-time" class="form-control">
+                                        <option value="15">15 minutos antes</option>
+                                        <option value="30">30 minutos antes</option>
+                                        <option value="60" selected>1 hora antes</option>
+                                        <option value="120">2 horas antes</option>
+                                        <option value="1440">1 día antes</option>
+                                    </select>
+                                </div>
+                                <div class="form-col">
+                                    <label for="reminder-frequency">Recordatorios</label>
+                                    <select id="reminder-frequency" class="form-control">
+                                        <option value="1">1 recordatorio</option>
+                                        <option value="2" selected>2 recordatorios</option>
+                                        <option value="3">3 recordatorios</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Alertas del Sistema</h3>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="switch-label">
+                                        <span>Alertas de cambios en citas</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="cita-changes-alerts" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="switch-label">
+                                        <span>Alertas de pacientes nuevos</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="new-patients-alerts" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <div class="switch-label">
+                                        <span>Notificaciones de actualización</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="update-notifications" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-col">
+                                    <div class="switch-label">
+                                        <span>Sonidos de notificación</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="sound-notifications">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary">Restaurar predeterminados</button>
+                        <button type="button" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Tab Content -->
+            <div class="tab-content" id="security-content">
+                <div class="config-content">
+                    <div class="form-group">
+                        <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Seguridad de la Cuenta</h3>
+
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label for="current-password">Contraseña Actual</label>
+                                <input type="password" id="current-password" class="form-control"
+                                    placeholder="Introduce tu contraseña actual">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label for="new-password">Nueva Contraseña</label>
+                                <input type="password" id="new-password" class="form-control"
+                                    placeholder="Introduce tu nueva contraseña">
+                            </div>
+                            <div class="form-col">
+                                <label for="confirm-password">Confirmar Contraseña</label>
+                                <input type="password" id="confirm-password" class="form-control"
+                                    placeholder="Confirma tu nueva contraseña">
+                            </div>
+                        </div>
+
+                        <div class="helper-card" style="margin-top: 1rem;">
+                            <h3>Requisitos de Contraseña</h3>
+                            <p>La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un
+                                número y un carácter especial.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Privacidad y Seguridad</h3>
+
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="switch-label">
+                                    <span>Autenticación de dos factores</span>
+                                    <label for="auth-dos-factores" class="switch">
+                                        <input id="auth-dos-factores" type="checkbox">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="switch-label">
+                                    <span>Cierre de sesión automático</span>
+                                    <label for="cierre-sesion-auto" class="switch">
+                                        <input id="cierre-sesion-auto" type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label for="tiempo-inactividad">Tiempo de inactividad para cierre</label>
+                                <select id="tiempo-inactividad" class="form-control">
+                                    <option value="5">5 minutos</option>
+                                    <option value="15" selected>15 minutos</option>
+                                    <option value="30">30 minutos</option>
+                                    <option value="60">60 minutos</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <label for="retencion-datos">Retención de datos de pacientes</label>
+                                <select id="retencion-datos" class="form-control">
+                                    <option value="1">1 año</option>
+                                    <option value="3">3 años</option>
+                                    <option value="5" selected>5 años</option>
+                                    <option value="10">10 años</option>
+                                    <option value="0">Indefinido</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-danger" id="delete-account-btn">
+                            <i class="fas fa-trash"></i> Eliminar Cuenta
+                        </button>
+                        <button type="button" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+<!---->
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/config.js') }}"></script>
+{% endblock %}

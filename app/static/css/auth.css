@@ -1,0 +1,202 @@
+/* auth.css - Estilos para autenticación y seguridad */
+
+/* Estilos compartidos */
+.auth-card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.auth-card .card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.auth-icon {
+    font-size: 3rem;
+    color: var(--primary-color, #4e73df);
+    margin-bottom: 1rem;
+}
+
+.auth-subtitle {
+    color: #5a5c69;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Estilos para verificar_2fa.html */
+.verification-container {
+    max-width: 500px;
+    margin: 3rem auto;
+}
+
+.verification-form {
+    padding: 1rem 0;
+}
+
+.digit-group {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.digit-input {
+    width: 50px;
+    height: 60px;
+    border: 1px solid #d1d3e2;
+    border-radius: 0.35rem;
+    text-align: center;
+    font-size: 1.8rem;
+    margin: 0 0.25rem;
+    background-color: #fff;
+    transition: border-color 0.2s;
+}
+
+.digit-input:focus {
+    border-color: var(--primary-color, #4e73df);
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    outline: 0;
+}
+
+.verification-help {
+    margin-top: 1.2rem;
+    font-size: 0.85rem;
+    color: #858796;
+}
+
+.countdown {
+    font-weight: bold;
+    color: var(--primary-color, #4e73df);
+}
+
+/* Estilos para configurar_2fa.html */
+.qr-container {
+    background-color: white;
+    padding: 1rem;
+    display: inline-block;
+    border-radius: 0.35rem;
+    border: 1px solid #e3e6f0;
+    margin-bottom: 1rem;
+}
+
+.qr-code {
+    border: 1px solid #e3e6f0;
+}
+
+.status-active {
+    background-color: #e8f5e9;
+    border-left: 5px solid #4caf50;
+    padding: 1rem;
+    color: #1b5e20;
+}
+
+.status-inactive {
+    background-color: #fff8e1;
+    border-left: 5px solid #ffc107;
+    padding: 1rem;
+    color: #ff6f00;
+}
+
+.step-list {
+    counter-reset: step-counter;
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.step-list li {
+    position: relative;
+    padding-left: 2.5rem;
+    margin-bottom: 1rem;
+    counter-increment: step-counter;
+}
+
+.step-list li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    background-color: var(--primary-color, #4e73df);
+    color: white;
+    font-weight: bold;
+}
+
+/* Sección FAQ */
+.faq-accordion .card {
+    border: 0;
+    margin-bottom: 0.5rem;
+}
+
+.faq-accordion .card-header {
+    background-color: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem !important;
+    padding: 0;
+}
+
+.faq-accordion .btn-link {
+    color: var(--primary-color, #4e73df);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 1rem;
+}
+
+.faq-accordion .btn-link:hover {
+    color: #2e59d9;
+    text-decoration: none;
+}
+
+.faq-accordion .btn-link.collapsed {
+    color: #5a5c69;
+}
+
+.faq-accordion .card-body {
+    border: 1px solid #e3e6f0;
+    border-top: 0;
+    border-radius: 0 0 0.35rem 0.35rem;
+    padding: 1.25rem;
+}
+
+/* Tema oscuro */
+body.dark-mode .auth-card {
+    background-color: #2c2f33;
+    color: #e3e6f0;
+}
+
+body.dark-mode .auth-card .card-header {
+    background-color: #23272a;
+    border-bottom: 1px solid #4e4e4e;
+}
+
+body.dark-mode .auth-subtitle {
+    color: #b9bbbe;
+}
+
+body.dark-mode .digit-input,
+body.dark-mode .form-control {
+    background-color: #23272a;
+    border-color: #4e4e4e;
+    color: #e3e6f0;
+}
+
+body.dark-mode .faq-accordion .card-header {
+    background-color: #23272a;
+    border-color: #4e4e4e;
+}
+
+body.dark-mode .faq-accordion .card-body {
+    background-color: #2c2f33;
+    border-color: #4e4e4e;
+}
+
+body.dark-mode .faq-accordion .btn-link.collapsed {
+    color: #e3e6f0;
+}
+
+body.dark-mode .verification-help {
+    color: #b9bbbe;
+}

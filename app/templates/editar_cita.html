@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Cita{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/psicologo.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/editar_cita.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…" crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Igual que antes -->
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+            <div class="sidebar-heading">Pacientes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nuevo_paciente') }}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Nuevo Paciente
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.estadisticas') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Estadísticas
+                </a>
+            </div>
+            <div class="sidebar-heading">Ajustes</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.config') }}" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    Configuración
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Editar Cita</h1>
+        </div>
+
+        <div class="form-container">
+            {% if es_cita_pasada %}
+            <div class="temporal-info">
+                <i class="fas fa-info-circle"></i>
+                <span>Esta cita está en el pasado. Las modificaciones se realizarán con fines de registro.</span>
+            </div>
+            {% endif %}
+
+            {% for paciente in pacientes %}
+            {% if paciente.id == cita.paciente_id %}
+            <div class="patient-info">
+                <h3>Información del Paciente</h3>
+                <p><strong>Nombre:</strong> {{ paciente.nombre }} {{ paciente.apellido }}</p>
+                {% if paciente.email %}
+                <p><strong>Email:</strong> {{ paciente.email }}</p>
+                {% endif %}
+                {% if paciente.telefono %}
+                <p><strong>Teléfono:</strong> {{ paciente.telefono }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            <form method="POST" action="{{ url_for('main.editar_cita', cita_id=cita.id) }}">
+                <input type="hidden" name="paciente_id" value="{{ cita.paciente_id }}">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha" class="required">Fecha</label>
+                        <input type="date" id="fecha" name="fecha"
+                            class="form-control {% if error_fecha %}is-invalid{% endif %}"
+                            value="{{ cita.fecha.strftime('%Y-%m-%d') }}" required>
+                        <div class="invalid-feedback">
+                            Por favor, seleccione una fecha válida.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hora" class="required">Hora</label>
+                        <input type="time" id="hora" name="hora"
+                            class="form-control {% if error_fecha %}is-invalid{% endif %}"
+                            value="{{ cita.fecha.strftime('%H:%M') }}" required>
+                        <div class="invalid-feedback">
+                            Por favor, seleccione una hora válida.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipo" class="required">Motivo de cita</label>
+                        <select id="tipo" name="tipo_cita_id" class="form-control" required>
+                            <option value="">Seleccionar Motivo</option>
+                            {% for tipo in tipos_cita %}
+                            <option value="{{ tipo.id }}" {% if tipo.id==cita.tipo_cita_id %}selected{% endif %}>
+                                {{ tipo.nombre }}
+                            </option>
+                            {% endfor %}
+                            {% if not tipos_cita %}
+                            <option value="1" {% if cita.tipo_cita_id==1 %}selected{% endif %}>Primera Cita</option>
+                            <option value="2" {% if cita.tipo_cita_id==2 %}selected{% endif %}>Seguimiento</option>
+                            <option value="3" {% if cita.tipo_cita_id==3 %}selected{% endif %}>Emergencia</option>
+                            {% endif %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Por favor, seleccione un tipo de cita.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status" class="required">Status</label>
+                        <select id="status" name="status" class="form-control" required>
+                            <option value="Programada" {% if cita.status=='Programada' %}selected{% endif %}>Programada
+                            </option>
+                            <option value="Confirmada" {% if cita.status=='Confirmada' %}selected{% endif %}>Confirmada
+                            </option>
+                            <option value="Completada" {% if cita.status=='Completada' %}selected{% endif %}>Completada
+                            </option>
+                            <option value="Cancelada" {% if cita.status=='Cancelada' %}selected{% endif %}>Cancelada
+                            </option>
+                            <option value="Reprogramada" {% if cita.status=='Reprogramada' %}selected{% endif %}>
+                                Reprogramada</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Por favor, seleccione un status.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nota">Nota de la Cita</label>
+                    <textarea id="nota" name="nota" class="form-control"
+                        placeholder="Escribe o edita la nota de la cita">{{ nota }}</textarea>
+                    <div class="invalid-feedback" id="nota-error"></div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('main.historial') }}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fechaInput = document.getElementById('fecha');
+        const horaInput = document.getElementById('hora');
+        const notaInput = document.getElementById('nota');
+        const fechaActual = new Date();
+
+        const year = fechaActual.getFullYear();
+        const month = String(fechaActual.getMonth() + 1).padStart(2, '0');
+        const day = String(fechaActual.getDate()).padStart(2, '0');
+        const fechaMinima = `${year}-${month}-${day}`;
+
+        fechaInput.setAttribute('min', fechaMinima);
+
+        const fechaOriginal = new Date('{{ cita.fecha.isoformat() }}');
+        const esEdicionCitaPasada = fechaOriginal < fechaActual;
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (e) {
+            let isValid = true;
+
+            if (!esEdicionCitaPasada) {
+                const fechaSeleccionada = new Date(`${fechaInput.value}T${horaInput.value}`);
+                if (fechaSeleccionada < fechaActual) {
+                    isValid = false;
+                    fechaInput.classList.add('is-invalid');
+                    horaInput.classList.add('is-invalid');
+                    alert('No se puede programar una cita en el pasado. Por favor, seleccione una fecha y hora futuras.');
+                } else {
+                    fechaInput.classList.remove('is-invalid');
+                    horaInput.classList.remove('is-invalid');
+                }
+            }
+
+            if (notaInput.value.length > 1000) {
+                isValid = false;
+                notaInput.classList.add('is-invalid');
+                const mensajeError = document.getElementById('nota-error');
+                mensajeError.textContent = 'La nota no puede exceder los 1000 caracteres.';
+            } else {
+                notaInput.classList.remove('is-invalid');
+                const mensajeError = document.getElementById('nota-error');
+                mensajeError.textContent = '';
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+
+        fechaInput.addEventListener('change', validarFechaHora);
+        horaInput.addEventListener('change', validarFechaHora);
+
+        function validarFechaHora() {
+            if (esEdicionCitaPasada) return;
+
+            if (fechaInput.value && horaInput.value) {
+                const fechaSeleccionada = new Date(`${fechaInput.value}T${horaInput.value}`);
+                if (fechaSeleccionada < fechaActual) {
+                    fechaInput.classList.add('is-invalid');
+                    horaInput.classList.add('is-invalid');
+                    let mensajeError = document.getElementById('error-fecha-hora');
+                    if (!mensajeError) {
+                        mensajeError = document.createElement('div');
+                        mensajeError.id = 'error-fecha-hora';
+                        mensajeError.className = 'invalid-feedback';
+                        mensajeError.style.display = 'block';
+                        horaInput.parentNode.appendChild(mensajeError);
+                    }
+                    mensajeError.textContent = 'No se puede programar una cita en el pasado.';
+                } else {
+                    fechaInput.classList.remove('is-invalid');
+                    horaInput.classList.remove('is-invalid');
+                    const mensajeError = document.getElementById('error-fecha-hora');
+                    if (mensajeError) {
+                        mensajeError.remove();
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
