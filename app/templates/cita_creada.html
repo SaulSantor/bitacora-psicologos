@@ -1,0 +1,549 @@
+{% extends 'base.html' %}
+
+{% block title %}Cita Creada - PsychCalendar{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/psicologo.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha384-…." crossorigin="anonymous">
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>PsychCalendar</h2>
+        </div>
+        <div class="sidebar-nav">
+            <div class="sidebar-heading">Principal</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.psicologo') }}" class="nav-link">
+                    <i class="fas fa-calendar"></i>
+                    Calendario
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.pacientes') }}" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Pacientes
+                </a>
+            </div>
+            <div class="sidebar-heading">Citas</div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.nueva_cita') }}" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Nueva Cita
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="{{ url_for('main.historial') }}" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    Historial
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="topbar">
+            <h1>Cita Creada</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">¡Cita programada con éxito!</h2>
+
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Tu cita se ha guardado correctamente en la base de datos.
+                </div>
+
+                {% if sync_google %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Ahora puedes sincronizar esta cita con Google Calendar.
+                </div>
+
+                <div class="cita-details">
+                    <h3>Detalles de la Cita</h3>
+                    <p><strong>Paciente:</strong> {{ paciente.nombre }} {{ paciente.apellido }}</p>
+                    <p><strong>Fecha:</strong> {{ cita.fecha.strftime('%d/%m/%Y %H:%M') }}</p>
+                    <p><strong>Duración:</strong> {{ cita.duracion }} minutos</p>
+                    <p><strong>Tipo:</strong> {{ cita.tipo }}</p>
+                    <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
+                </div>
+
+                <!-- Opciones de notificación -->
+                <div class="notification-options mt-4 mb-4">
+                    <h4><i class="fas fa-bell"></i> Opciones de notificación</h4>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Notificaciones para Google Calendar -->
+                            <h5>Recordatorios en Google Calendar</h5>
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="useDefaultReminders"
+                                        checked>
+                                    <label class="custom-control-label" for="useDefaultReminders">Usar recordatorios
+                                        predeterminados</label>
+                                </div>
+                            </div>
+
+                            <div id="customReminders" class="pl-4 mt-3" style="display: none;">
+                                <div class="row align-items-center mb-2 reminder-row">
+                                    <div class="col-md-3">
+                                        <select class="form-control reminder-method">
+                                            <option value="popup">Notificación</option>
+                                            <option value="email">Email</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input type="number" class="form-control reminder-minutes" min="0" value="30">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-control reminder-unit">
+                                            <option value="1">minutos</option>
+                                            <option value="60">horas</option>
+                                            <option value="1440">días</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-sm btn-danger remove-reminder">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-secondary mt-2" id="addReminder">
+                                    <i class="fas fa-plus"></i> Añadir recordatorio
+                                </button>
+                            </div>
+
+                            <!-- Notificaciones en la aplicación -->
+                            <h5 class="mt-4">Notificaciones en la aplicación</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="app_notify_email">Enviar email</label>
+                                        <select class="form-control" id="app_notify_email">
+                                            <option value="0">No enviar</option>
+                                            <option value="15">15 minutos antes</option>
+                                            <option value="30" selected>30 minutos antes</option>
+                                            <option value="60">1 hora antes</option>
+                                            <option value="120">2 horas antes</option>
+                                            <option value="1440">1 día antes</option>
+                                            <option value="2880">2 días antes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="app_notify_sms">Enviar SMS</label>
+                                        <select class="form-control" id="app_notify_sms">
+                                            <option value="0" selected>No enviar</option>
+                                            <option value="15">15 minutos antes</option>
+                                            <option value="30">30 minutos antes</option>
+                                            <option value="60">1 hora antes</option>
+                                            <option value="120">2 horas antes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="notify_patient" checked>
+                                    <label class="custom-control-label" for="notify_patient">Notificar también al
+                                        paciente</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button id="authorize_button" class="btn btn-primary">
+                        <i class="fab fa-google"></i> Conectar con Google Calendar
+                    </button>
+                    <button id="sync_button" class="btn btn-success" style="display: none;">
+                        <i class="fas fa-sync"></i> Sincronizar Cita
+                    </button>
+                    <a id="view_event_button" class="btn btn-info" style="display: none;" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Ver en Google Calendar
+                    </a>
+                </div>
+
+                <div id="sync-status" class="mt-3" style="display: none;"></div>
+
+                <!-- Datos para JavaScript (ocultos) -->
+                <div id="cita-datos" style="display: none;" data-id="{{ cita.id }}"
+                    data-paciente-nombre="{{ paciente.nombre }}" data-paciente-apellido="{{ paciente.apellido }}"
+                    data-fecha="{{ cita.fecha.isoformat() }}" data-duracion="{{ cita.duracion }}"
+                    data-tipo="{{ cita.tipo }}" data-motivo="{{ cita.motivo }}"
+                    data-notas="{{ cita.notas|default('') }}" data-status="{{ cita.status }}">
+                </div>
+                {% endif %}
+
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('main.historial') }}" class="btn btn-secondary">
+                        <i class="fas fa-history"></i> Ir al Historial de Citas
+                    </a>
+                    <a href="{{ url_for('main.nueva_cita') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Crear Otra Cita
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if sync_google %}
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
+
+<script>
+    // Credenciales de Google
+    const CLIENT_ID = '';
+    const API_KEY = '';
+    const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
+
+    // Variables para la inicialización de la API
+    let gapiInited = false;
+    let gisInited = false;
+    let tokenClient;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Elementos de la UI
+        const authorizeButton = document.getElementById('authorize_button');
+        const syncButton = document.getElementById('sync_button');
+        const syncStatus = document.getElementById('sync-status');
+
+        // Elementos para las notificaciones
+        const useDefaultRemindersCheckbox = document.getElementById('useDefaultReminders');
+        const customRemindersContainer = document.getElementById('customReminders');
+        const addReminderButton = document.getElementById('addReminder');
+
+        // Toggle para mostrar/ocultar recordatorios personalizados
+        useDefaultRemindersCheckbox.addEventListener('change', function () {
+            customRemindersContainer.style.display = this.checked ? 'none' : 'block';
+        });
+
+        // Función para añadir una nueva fila de recordatorio
+        addReminderButton.addEventListener('click', function () {
+            const reminderRow = document.querySelector('.reminder-row').cloneNode(true);
+
+            // Resetear valores
+            reminderRow.querySelector('.reminder-method').value = 'popup';
+            reminderRow.querySelector('.reminder-minutes').value = '30';
+            reminderRow.querySelector('.reminder-unit').value = '1';
+
+            // Agregar evento para eliminar
+            reminderRow.querySelector('.remove-reminder').addEventListener('click', function () {
+                if (document.querySelectorAll('.reminder-row').length > 1) {
+                    this.closest('.reminder-row').remove();
+                }
+            });
+
+            // Insertar antes del botón de añadir
+            addReminderButton.parentNode.insertBefore(reminderRow, addReminderButton);
+        });
+
+        // Agregar evento a los botones de eliminar existentes
+        document.querySelector('.remove-reminder').addEventListener('click', function () {
+            if (document.querySelectorAll('.reminder-row').length > 1) {
+                this.closest('.reminder-row').remove();
+            }
+        });
+
+        // Función para obtener los recordatorios configurados
+        function getConfiguredReminders() {
+            if (useDefaultRemindersCheckbox.checked) {
+                return { useDefault: true };
+            }
+
+            const overrides = [];
+            document.querySelectorAll('.reminder-row').forEach(row => {
+                const method = row.querySelector('.reminder-method').value;
+                const minutes = parseInt(row.querySelector('.reminder-minutes').value);
+                const unit = parseInt(row.querySelector('.reminder-unit').value);
+
+                if (minutes > 0) {
+                    overrides.push({
+                        'method': method,
+                        'minutes': minutes * unit
+                    });
+                }
+            });
+
+            return {
+                useDefault: false,
+                overrides: overrides
+            };
+        }
+
+        // Función para obtener configuración de notificaciones de la aplicación
+        function getAppNotificationSettings() {
+            return {
+                emailMinutes: parseInt(document.getElementById('app_notify_email').value),
+                smsMinutes: parseInt(document.getElementById('app_notify_sms').value),
+                notifyPatient: document.getElementById('notify_patient').checked
+            };
+        }
+
+        // Mostrar status inicial
+        syncStatus.style.display = 'block';
+        syncStatus.innerHTML = '<div class="alert alert-info">Inicializando Google API...</div>';
+
+        // 1. Cargar la API de Google
+        function loadGapiAndInitClient() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        // 2. Inicializar el cliente GAPI
+        async function initializeGapiClient() {
+            try {
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+                });
+
+                // Cargar específicamente la API de Calendar
+                await gapi.client.load('calendar', 'v3');
+                gapiInited = true;
+                syncStatus.innerHTML = '<div class="alert alert-info">Google API inicializada. Esperando autorización...</div>';
+                checkInitialization();
+            } catch (error) {
+                syncStatus.innerHTML = `<div class="alert alert-danger">Error al inicializar Google API: ${error.message || 'Error desconocido'}</div>`;
+                console.error('Error al inicializar GAPI client:', error);
+            }
+        }
+
+        // 3. Inicializar Identity Services
+        function initializeIdentityServices() {
+            try {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    prompt: '',
+                    callback: handleTokenResponse
+                });
+                gisInited = true;
+                checkInitialization();
+            } catch (error) {
+                syncStatus.innerHTML = `<div class="alert alert-danger">Error al inicializar servicio de autenticación: ${error.message || 'Error desconocido'}</div>`;
+                console.error('Error al inicializar GIS client:', error);
+            }
+        }
+
+        // 4. Verificar si todo está inicializado
+        function checkInitialization() {
+            if (gapiInited && gisInited) {
+                authorizeButton.style.display = 'inline-block';
+                authorizeButton.disabled = false;
+            }
+        }
+
+        // 5. Manejar la respuesta del token
+        function handleTokenResponse(tokenResponse) {
+            if (tokenResponse.error !== undefined) {
+                syncStatus.innerHTML = `<div class="alert alert-danger">Error de autorización: ${tokenResponse.error}</div>`;
+                return;
+            }
+
+            syncStatus.innerHTML = '<div class="alert alert-success">Autorización exitosa. Listo para sincronizar.</div>';
+            authorizeButton.style.display = 'none';
+            syncButton.style.display = 'inline-block';
+            syncButton.disabled = false;
+        }
+
+        // 6. Botón de autorización
+        authorizeButton.onclick = () => {
+            authorizeButton.disabled = true;
+
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            } else {
+                tokenClient.requestAccessToken({ prompt: '' });
+            }
+        };
+
+        // 7. Botón de sincronización
+        syncButton.onclick = async () => {
+            syncButton.disabled = true;
+            syncStatus.innerHTML = '<div class="alert alert-info">Sincronizando cita con Google Calendar...</div>';
+
+            try {
+                // Obtener datos de la cita del elemento oculto
+                const datosElement = document.getElementById('cita-datos');
+                const citaId = parseInt(datosElement.dataset.id);
+                const pacienteNombre = datosElement.dataset.pacienteNombre;
+                const pacienteApellido = datosElement.dataset.pacienteApellido;
+                const citaFecha = datosElement.dataset.fecha;
+                const citaDuracion = parseInt(datosElement.dataset.duracion);
+                const citaTipo = datosElement.dataset.tipo;
+                const citaMotivo = datosElement.dataset.motivo;
+                const citaNotas = datosElement.dataset.notas;
+                const citaStatus = datosElement.dataset.status;
+
+                // Fecha y hora de la cita
+                const fechaInicio = new Date(citaFecha);
+                const fechaFin = new Date(fechaInicio.getTime() + (citaDuracion * 60 * 1000));
+
+                // Colores según status
+                const statusColorMap = {
+                    'programada': '1',  // Azul
+                    'completada': '10', // Verde
+                    'cancelada': '11',  // Rojo
+                    'ausente': '6',     // Naranja
+                    'en espera': '7'    // Turquesa
+                };
+                const colorId = statusColorMap[citaStatus.toLowerCase()] || '1';
+
+                // Obtener recordatorios configurados
+                const reminders = getConfiguredReminders();
+
+                // Construir el evento
+                const event = {
+                    'summary': `Cita: ${pacienteNombre} ${pacienteApellido}`,
+                    'description': `Tipo: ${citaTipo}\nMotivo: ${citaMotivo}${citaNotas ? `\n\nNotas: ${citaNotas}` : ''}`,
+                    'start': {
+                        'dateTime': fechaInicio.toISOString(),
+                        'timeZone': 'America/Mexico_City'
+                    },
+                    'end': {
+                        'dateTime': fechaFin.toISOString(),
+                        'timeZone': 'America/Mexico_City'
+                    },
+                    'colorId': colorId,
+                    'reminders': reminders
+                };
+
+                // Crear el evento en Google Calendar
+                const response = await gapi.client.calendar.events.insert({
+                    'calendarId': 'primary',
+                    'resource': event
+                });
+
+                // Obtener preferencias de notificación de la aplicación
+                const appNotifications = getAppNotificationSettings();
+
+                // Guardar el ID del evento y preferencias de notificación en nuestra base de datos
+                const googleEventId = response.result.id;
+                const syncResponse = await fetch('/api/sync-google-calendar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cita_id: citaId,
+                        event_id: googleEventId,
+                        notifications: {
+                            email_minutes: appNotifications.emailMinutes,
+                            sms_minutes: appNotifications.smsMinutes,
+                            notify_patient: appNotifications.notifyPatient
+                        }
+                    }),
+                });
+
+                const syncResult = await syncResponse.json();
+
+                // Después de la sincronización exitosa
+                if (syncResult.success) {
+                    // Obtener el ID del evento y más detalles
+                    const googleEventHtmlLink = response.result.htmlLink; // Enlace directo proporcionado por Google
+
+                    // Mostrar opciones adicionales (para depuración y uso)
+                    const viewButton = document.getElementById('view_event_button');
+
+                    // Si Google proporciona un enlace HTML directo, úsalo
+                    if (googleEventHtmlLink) {
+                        viewButton.href = googleEventHtmlLink;
+                        viewButton.style.display = 'inline-block';
+                        console.log('Usando URL directa proporcionada por Google');
+                    } else {
+                        // Fallback a nuestras propias construcciones de URL
+                        viewButton.href = `https://calendar.google.com/calendar/u/0/r/eventedit/${googleEventId.replace('@google.com', '')}`;
+                        viewButton.style.display = 'inline-block';
+                        console.log('Usando URL de construcción propia');
+                    }
+
+                    // Mostrar mensaje de éxito
+                    syncStatus.innerHTML = '<div class="alert alert-success">¡Cita sincronizada con Google Calendar correctamente!</div>';
+                    syncButton.style.display = 'none';
+
+                    // Mostrar todos los datos en la consola para depuración
+                    console.log('Respuesta completa del evento:', response.result);
+
+                    // Mostrar información sobre las notificaciones configuradas
+                    if (appNotifications.emailMinutes > 0 || appNotifications.smsMinutes > 0) {
+                        const notifyInfo = document.createElement('div');
+                        notifyInfo.className = 'alert alert-info mt-3';
+
+                        let notifyMsg = '<strong>Notificaciones configuradas:</strong><ul>';
+
+                        if (appNotifications.emailMinutes > 0) {
+                            const emailTime = formatNotificationTime(appNotifications.emailMinutes);
+                            notifyMsg += `<li>Email: ${emailTime} antes de la cita</li>`;
+                        }
+
+                        if (appNotifications.smsMinutes > 0) {
+                            const smsTime = formatNotificationTime(appNotifications.smsMinutes);
+                            notifyMsg += `<li>SMS: ${smsTime} antes de la cita</li>`;
+                        }
+
+                        if (appNotifications.notifyPatient) {
+                            notifyMsg += '<li>Se notificará también al paciente</li>';
+                        }
+
+                        notifyMsg += '</ul>';
+                        notifyInfo.innerHTML = notifyMsg;
+
+                        // Agregar después del status
+                        syncStatus.parentNode.insertBefore(notifyInfo, syncStatus.nextSibling);
+                    }
+                }
+            } catch (error) {
+                console.error('Error en sincronización:', error);
+                syncStatus.innerHTML = `<div class="alert alert-danger">Error: ${error.message || 'No se pudo sincronizar la cita'}</div>`;
+                syncButton.disabled = false;
+            }
+        };
+
+        // Función auxiliar para formatear los tiempos de notificación
+        function formatNotificationTime(minutes) {
+            if (minutes < 60) {
+                return `${minutes} minutos`;
+            } else if (minutes < 1440) {
+                const hours = minutes / 60;
+                return `${hours} ${hours === 1 ? 'hora' : 'horas'}`;
+            } else {
+                const days = minutes / 1440;
+                return `${days} ${days === 1 ? 'día' : 'días'}`;
+            }
+        }
+
+        // Iniciar el proceso
+        loadGapiAndInitClient();
+
+        // Comprobar si GIS está disponible e inicializarlo
+        if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
+            initializeIdentityServices();
+        } else {
+            // Intentar cargar GIS de forma dinámica
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.onload = initializeIdentityServices;
+            script.onerror = () => {
+                syncStatus.innerHTML = '<div class="alert alert-danger">No se pudo cargar Google Identity Services</div>';
+            };
+            document.body.appendChild(script);
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}
